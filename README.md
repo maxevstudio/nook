@@ -103,9 +103,11 @@ Détail complet dans [ARCHITECTURE.md](ARCHITECTURE.md).
   modèle de données, les migrations, le scanner, les services, les cookies
   et, en particulier, le blocage réel de scripts/iframes
   (`tests/php/ContentFilterTest.php`).
-- **JS** : `npm test` (basé sur `@wordpress/scripts test-unit-js`). Aucun
-  test n'est encore écrit — voir [STATUS.md](STATUS.md) pour les prochaines
-  étapes.
+- **JS** : `npm test` (basé sur `@wordpress/scripts test-unit-js`, qui
+  requiert Vitest 5 + Vite 8). Aucun test n'est encore écrit — voir
+  [STATUS.md](STATUS.md) et `tests/js/README.md` pour les prochaines étapes
+  et une mise en garde sur un bug npm rencontré lors d'une tentative
+  d'installation.
 
 ## Release
 

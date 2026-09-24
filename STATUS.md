@@ -137,7 +137,10 @@ Milestone F/G (voir « Next » ci-dessous) avant une release candidate.
 - `npm run build`, `npm run lint:js`, `npm run lint:css` : verts.
 - Vérification manuelle : aucune copie de React dans `build/frontend/`,
   noms de fichiers CSS générés vérifiés (`style-index.css`, pas `index.css`
-  — correction appliquée dans `Assets.php`).
+  — correction appliquée dans `Assets.php`). Pipeline de release
+  (`npm run release`) retesté avec succès dans une copie temporaire du
+  dépôt (`--version=0.9.0`) : ZIP propre généré, structure vérifiée
+  (`unzip -l`).
 
 ## In progress
 
@@ -149,11 +152,20 @@ Par ordre de priorité suggéré pour finaliser la V1 (voir aussi PROJECT.md
 « Logique de travail », Milestones F/G) :
 
 1. **Tests JS** — aucun test JS n'existe encore (`tests/js/` ne contient
-   qu'un README). `@wordpress/scripts test-unit-js` nécessite un
-   framework de test (Jest, déjà inclus par `@wordpress/scripts` en
-   interne — à vérifier avant d'ajouter une dépendance supplémentaire).
+   qu'un README). `@wordpress/scripts test-unit-js` (version installée)
+   requiert Vitest 5 + Vite 8. **Tentative d'installation échouée** dans cet
+   environnement de développement : `npm install --save-dev vitest@^5
+   vite@^8` provoque une erreur `Cannot read properties of null (reading
+   'edgesOut')` (bug connu de résolution de peer dependencies dans
+   `@npmcli/arborist`, npm 10.9.2) ; `--legacy-peer-deps` contourne le crash
+   mais casse ensuite `npm run lint:js` (eslint-plugin-jsdoc ne retrouve
+   plus son eslint imbriqué). La tentative a été annulée proprement
+   (`git checkout -- package.json package-lock.json && npm ci`) pour ne pas
+   laisser le dépôt dans un état instable — voir `tests/js/README.md`.
    Prioriser le store (`src/admin/store/index.js`) et
-   `consent-storage.js`/`isConsentValid()`.
+   `consent-storage.js`/`isConsentValid()` une fois l'outillage réparé
+   (npm plus récent, ou versions exactes épinglées plutôt que des plages
+   `^`).
 2. **Google Consent Mode** — non implémenté (hors priorité V1 explicite,
    voir PROJECT.md §50). À réévaluer seulement si un besoin réel émerge.
 3. **Bloc Gutenberg** équivalent à `[nook_cookie_settings]` — mentionné

@@ -632,6 +632,12 @@ scripts WordPress à déclarer dans `wp_enqueue_script`.
   scripts/iframes), `SettingsController`, `ScanController`,
   `ServicesController`, `CookiesController`, et le bootstrap complet du
   plugin. 60 tests au moment de la rédaction.
+- **Tests JS** : à écrire (voir `tests/js/README.md`). `@wordpress/scripts
+  test-unit-js` (version installée) requiert Vitest 5 + Vite 8 — une
+  tentative d'installation dans cet environnement de développement a
+  échoué (bug connu de résolution de peer dependencies dans npm 10.9.2,
+  voir `tests/js/README.md` pour le détail et ne pas reproduire la même
+  approche sans changer de version de npm).
 
 ## 14. Décisions structurelles (journal court)
 
