@@ -71,6 +71,8 @@ script blocking et le dashboard complets restent à construire.
   racine `nook/`, aucun `node_modules/`/`.git/`/`src/`/`tests/`/`package.json`
   dans la distribution. Le dépôt de travail n'a pas été altéré par ce test.
 - `readme.txt` (format WordPress.org) et `LICENSE` (GPLv2) créés.
+- Dépôt git initialisé et premier commit effectué (voir « Known issues » pour
+  la particularité locale de binaire `git` utilisée).
 
 ## In progress
 
@@ -109,14 +111,17 @@ Par ordre de priorité suggéré (voir aussi PROJECT.md « Priorités V1ᵃ ») 
 
 ## Known issues
 
-- **Git indisponible sur la machine de développement actuelle** : la licence
-  Xcode Command Line Tools n'est pas acceptée
-  (`sudo xcodebuild -license accept` nécessite une confirmation interactive
-  impossible à automatiser ici), ce qui bloque `git`/`brew install git`. Le
-  dépôt n'est donc **pas encore un dépôt git initialisé**. Une future session
-  (ou l'utilisateur directement) devra exécuter `sudo xcodebuild -license
-  accept` (ou installer un git indépendant de Xcode), puis `git init` et un
-  premier commit. Aucun autre outil (npm, php, mkdir) n'est affecté.
+- **`/usr/bin/git` (fourni par Xcode complet) est bloqué** sur la machine de
+  développement actuelle car la licence Xcode n'est pas acceptée (`sudo
+  xcodebuild -license accept` nécessite une confirmation interactive). Le
+  binaire `/Library/Developer/CommandLineTools/usr/bin/git` (Command Line
+  Tools seules, sans dépendre de la licence Xcode complète) fonctionne
+  correctement et a été utilisé pour initialiser le dépôt (`git init`,
+  premier commit). Si `git` en tant que tel redevient nécessaire dans une
+  session future et que `/usr/bin/git` échoue à nouveau, utiliser directement
+  `/Library/Developer/CommandLineTools/usr/bin/git`, ou faire pointer
+  `xcode-select` vers les Command Line Tools (`sudo xcode-select --switch
+  /Library/Developer/CommandLineTools`).
 - Le script `npm test` (`wp-scripts test-unit-js`) nécessite l'installation de
   Vitest (`npm install --save-dev vitest`) avant de pouvoir s'exécuter — non
   fait pour l'instant car aucun test n'existe encore (voir `tests/js/README.md`).
