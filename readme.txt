@@ -16,7 +16,7 @@ Nook est un gestionnaire de consentement aux cookies (CMP) simple, silencieux
 et autonome. Après installation et activation, il fonctionne immédiatement,
 sans compte, sans email et sans SaaS obligatoire.
 
-**Fonctionnalités principales (feuille de route V1)**
+**Fonctionnalités principales (V1)**
 
 * Assistant de configuration en 7 étapes (Site, Analyse, Services,
   Consentement, Design, Politique de cookies, Finalisation)

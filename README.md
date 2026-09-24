@@ -48,8 +48,10 @@ activez le plugin **Nook** depuis **Extensions**.
 npm start          # build en mode watch (développement)
 npm run build       # build de production (build/admin/, build/frontend/)
 npm run lint:js      # lint des sources JS/JSX
+npm run lint:css     # lint des styles CSS
 npm run format       # formatage automatique (prettier via wp-scripts)
 npm test             # tests JS (à écrire, voir STATUS.md)
+php tests/php/run.php # tests PHP (framework maison, aucune dépendance)
 npm run release      # génère une release complète (voir RELEASE.md)
 ```
 
@@ -71,20 +73,23 @@ nook/
 ├── uninstall.php
 ├── includes/             # PHP (namespace Nook\)
 │   ├── Admin/            # Menu + enqueue de l'admin React
-│   ├── REST/             # Contrôleurs REST (nook/v1)
-│   ├── Scanner/          # Scanner serveur (cookies/scripts/services)
-│   ├── Consent/          # Catégories et versionnage du consentement
+│   ├── REST/             # Contrôleurs REST (nook/v1) : settings, scan,
+│   │                     # services, cookies, public-config
+│   ├── Scanner/          # Scanner serveur (crawl, découverte d'URLs)
+│   ├── Consent/          # Catégories de consentement
 │   ├── Services/         # Registre de services tiers (un fichier = un service)
-│   ├── Database/         # Accès aux réglages (wp_options)
-│   └── Frontend/         # Assets et rendu du runtime public
+│   ├── Database/         # Réglages, migrations, résultats de scan, cookies
+│   └── Frontend/         # Assets, blocage réel (ContentFilter), shortcodes
 ├── src/
-│   ├── admin/            # Application React (wizard, dashboard, ...)
-│   └── frontend/         # Runtime public (JS natif)
+│   ├── admin/            # Application React (wizard 7 étapes, dashboard 6 onglets)
+│   └── frontend/         # Runtime public (JS natif, bannière/préférences/blocage)
 ├── data/
 │   └── cookies.json      # Base locale de cookies (Open Cookie Database, Apache-2.0)
 ├── build/                # Généré par `npm run build`
 ├── languages/            # Fichiers de traduction
-├── tests/                # Tests PHP et JS
+├── tests/
+│   ├── php/              # Tests PHP (framework maison, `php tests/php/run.php`)
+│   └── js/               # Tests JS (à écrire)
 ├── bin/release.mjs       # Script de release
 └── AGENTS.md / PROJECT.md / ARCHITECTURE.md / STATUS.md / RELEASE.md / CHANGELOG.md
 ```
@@ -93,10 +98,14 @@ Détail complet dans [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Tests
 
-- **JS** : `npm test` (basé sur `@wordpress/scripts test-unit-js`). Aucun test
-  n'est encore écrit — voir [STATUS.md](STATUS.md) pour les prochaines
+- **PHP** : `php tests/php/run.php` — 60 tests, framework maison sans
+  dépendance (pas de PHPUnit ni de Composer requis à l'exécution). Couvre le
+  modèle de données, les migrations, le scanner, les services, les cookies
+  et, en particulier, le blocage réel de scripts/iframes
+  (`tests/php/ContentFilterTest.php`).
+- **JS** : `npm test` (basé sur `@wordpress/scripts test-unit-js`). Aucun
+  test n'est encore écrit — voir [STATUS.md](STATUS.md) pour les prochaines
   étapes.
-- **PHP** : dossier `tests/php/` réservé pour une suite PHPUnit à venir.
 
 ## Release
 

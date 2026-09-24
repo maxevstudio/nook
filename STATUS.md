@@ -10,125 +10,189 @@
 
 ## Current milestone
 
-**Fondations** — bootstrap WordPress, documentation permanente, architecture,
-squelette du plugin, build, écran d'accueil minimal. Le wizard, le scanner, le
-script blocking et le dashboard complets restent à construire.
+**V1 fonctionnelle — cœur complet livré.** Les Milestones A à E (voir
+PROJECT.md « Logique de travail ») sont terminés : modèle de données
+versionné, wizard 7 étapes fonctionnel, scanner réel, 7 services V1, base de
+connaissance des cookies exploitée, bannière/centre de préférences/blocage
+réel côté front, dashboard à 6 onglets. Restent des raffinements de
+Milestone F/G (voir « Next » ci-dessous) avant une release candidate.
 
 ## Completed
 
-- Documentation permanente créée et cohérente entre elle : `AGENTS.md`,
-  `PROJECT.md`, `ARCHITECTURE.md`, `RELEASE.md`, `CHANGELOG.md`, `README.md`,
-  ce fichier.
-- Recherche préalable effectuée : versions stables des packages
-  `@wordpress/*` (scripts 36, components 41, element 6, data 10, i18n 5,
-  icons 10, api-fetch 7), prérequis WordPress (≥ 6.6 pour le handle
-  `react-jsx-runtime`), PHP (≥ 7.4, recommandé 8.1+), licence Apache-2.0 de
-  l'Open Cookie Database vérifiée.
-- Squelette WordPress du plugin : `nook.php` (en-tête, constantes, autoloader
-  PSR-4 maison, garde-fou version PHP), `uninstall.php`.
-- Arborescence `includes/` posée avec un exemple fonctionnel dans chaque
-  module :
-  - `Plugin.php` (orchestrateur), `Admin/Menu.php` (menu + enqueue React),
-    `REST/SettingsController.php` (`GET`/`POST /nook/v1/settings`, permissions
-    `manage_options`, sanitation récursive),
-    `Database/Settings.php` (défauts + fusion + `update_option`),
-    `Consent/CategoryRegistry.php` (4 catégories, filtre
-    `nook/consent/categories`),
-    `Services/ServiceDefinition.php` + `ServiceRegistry.php` +
-    `GoogleAnalytics.php` (pattern « un service = une classe »),
-    `Scanner/Scanner.php` (interface posée, logique non implémentée),
-    `Frontend/Assets.php` (enqueue du runtime public).
-- Vérifié par un test de fumée PHP (stubs de fonctions WP) : le bootstrap,
-  l'autoloader, `Settings::get_defaults()`, `ServiceRegistry::get_services()`
-  et `SettingsController` s'exécutent sans erreur fatale.
-- Application React d'administration (`src/admin/`) : `index.js`, `App.jsx`,
-  store `@wordpress/data` (`store/index.js`, resolver `getSettings` via
-  `apiFetch`), pages `Onboarding.jsx` (écran initial « Configurez le
-  consentement de votre site » + bouton « Commencer la configuration »),
-  `Wizard.jsx` (coquille listant les 7 étapes, non fonctionnelle),
-  `Dashboard.jsx` (coquille).
-- **Aucune API expérimentale `@wordpress/components`** utilisée (le lint
-  `@wordpress/no-unsafe-wp-apis` a détecté un premier essai avec
-  `__experimentalHeading`/`__experimentalText` ; corrigé avec des balises
-  HTML natives — décision cohérente avec AGENTS.md règle 2/3).
-- Runtime public (`src/frontend/index.js`) : point d'entrée minimal, sans
-  React, sans logique de bannière/blocage pour l'instant.
-- Build à deux entrées (`webpack.config.js` personnalisé étendant la config
-  par défaut de `@wordpress/scripts`) : `build/admin/index.js` (5,5 Ko
-  minifié, aucune copie de React embarquée — vérifié) et
-  `build/frontend/index.js`. `npm run build` et `npm run lint:js` passent
-  sans erreur.
-- Base de connaissance locale des cookies (`data/cookies.json`, 2266 entrées,
-  355 services) générée à partir de l'Open Cookie Database (licence
-  Apache-2.0, fichier de licence conservé dans
-  `data/OPEN-COOKIE-DATABASE-LICENSE`, attribution documentée dans
-  `ARCHITECTURE.md` §5).
-- Script de release (`bin/release.mjs`, commande `npm run release`) :
-  implémente les 12 étapes décrites dans `RELEASE.md` (lint, build,
-  versionnage, changelog, packaging, vérification, ZIP via la commande
-  système `zip`). **Testé avec succès en conditions réelles** dans une copie
-  temporaire du dépôt (`--version=1.0.0`) : ZIP de 148 Ko généré, dossier
-  racine `nook/`, aucun `node_modules/`/`.git/`/`src/`/`tests/`/`package.json`
-  dans la distribution. Le dépôt de travail n'a pas été altéré par ce test.
-- `readme.txt` (format WordPress.org) et `LICENSE` (GPLv2) créés.
-- Dépôt git initialisé et premier commit effectué (voir « Known issues » pour
-  la particularité locale de binaire `git` utilisée).
+### Documentation et fondations (session précédente)
+
+- Documentation permanente : `AGENTS.md`, `PROJECT.md`, `ARCHITECTURE.md`,
+  `RELEASE.md`, `CHANGELOG.md`, `README.md`, ce fichier.
+- Squelette WordPress du plugin, autoloader PSR-4 maison, build à deux
+  entrées (`admin`/`frontend`) via `@wordpress/scripts`.
+- Base de connaissance locale des cookies (`data/cookies.json`, 2266
+  entrées, 355 services, licence Apache-2.0 attribuée).
+- Script de release (`bin/release.mjs`).
+
+### Milestone A — Modèle de données + wizard (cette session)
+
+- Schéma de configuration complet et versionné (`Nook\Database\Settings`,
+  voir ARCHITECTURE.md §3.6) : `schemaVersion`, `setupCompleted`, `site`,
+  `consent`, `banner`, `policy`, `scanner`, `services`, `cookies`, `wizard`,
+  `debug`.
+- Mécanisme de migration de schéma (`Nook\Database\Migrations`), prêt pour
+  une V2 sans qu'il faille réinventer l'architecture.
+- **Correction d'un bug latent** : `sanitize_key()` de WordPress mettait les
+  clés en minuscules, ce qui aurait corrompu toute clé camelCase envoyée par
+  le wizard. Remplacé par un nettoyage de clé préservant la casse, avec test
+  de non-régression.
+- `Settings::merge()` : une liste séquentielle (ex. `wizard.completedSteps`)
+  est désormais remplacée entièrement plutôt que fusionnée par index
+  (`array_replace_recursive()` natif aurait été incorrect ici).
+- Wizard 7 étapes réellement fonctionnel (`Wizard.jsx` + `pages/wizard/*`) :
+  navigation avant/arrière, barre de progression cliquable (étapes
+  complétées), sauvegarde à chaque changement d'étape, reprise fidèle après
+  rafraîchissement, écran de finalisation avec récapitulatif.
+- Dashboard initial puis complet (voir Milestone F ci-dessous).
+
+### Milestone B — Scanner + Open Cookie Database (cette session)
+
+- Scanner serveur réel (`Nook\Scanner\Scanner`, `UrlDiscovery`) : crawl
+  limité (`wp_remote_get`, timeout 8s, 20 URLs max), extraction
+  scripts/iframes via `DOMDocument` (repli regex), cookies HTTP réellement
+  observés, verrou anti-concurrence (transient).
+- `Nook\Database\CookieDatabase` : lookup exact/glob/préfixe avec seuil
+  anti-faux-positifs (préfixe ≥ 4 caractères), chargement paresseux mis en
+  cache.
+- `Nook\Database\ScanResults` : stockage séparé des résultats bruts
+  (`nook_scan_results`), pour ne jamais alourdir `nook_settings`.
+- Endpoints REST `/scan` (verrouillé, synchrone) et `/scan/status`.
+- Endpoint REST `/cookies` (liste fusionnée détection + corrections
+  manuelles) et `/cookies/:id` (correction/ajout manuel) —
+  `Nook\REST\CookiesController`, avec conservation garantie des corrections
+  manuelles lors d'un re-scan (testé).
+- Page « Cookies » du dashboard (recherche, filtres catégorie/statut,
+  édition inline).
+
+### Milestone C — Services (cette session)
+
+- 7 services V1 complets : Google Analytics, Google Tag Manager, Google
+  Ads, Meta Pixel, YouTube, Vimeo, Google Maps (`includes/Services/`),
+  chacun avec domaines, motifs de script/iframe, cookies connus.
+- `Nook\Services\ServiceState` : calcul d'état partagé (activé, catégorie,
+  statut) entre l'API REST des services et le blocage front — logique non
+  dupliquée.
+- Endpoint REST `/services` (registre + détection + corrections) et
+  `/services/:slug` (confirmer/corriger/activer, ou créer un service
+  personnalisé).
+- Étape « Services » du wizard + page « Services » du dashboard (avec
+  formulaire d'ajout de service personnalisé).
+
+### Milestone D/E — Bannière, préférences, blocage réel (cette session)
+
+- Runtime public complet (`src/frontend/`) : bannière (Tout accepter/Tout
+  refuser/Personnaliser à égalité visuelle, voir AGENTS.md règle 12),
+  centre de préférences (focus trap, Échap, catégories individuelles),
+  stockage du consentement (cookie first-party + miroir localStorage),
+  petite API d'événements (`nook:consent-ready`/`consent-updated`/
+  `category-enabled`/`category-disabled`).
+- **Blocage réel** (`Nook\Frontend\ContentFilter`, `Blocklist`,
+  `Placeholder`) : réécriture par expressions régulières ciblées de la
+  sortie HTML bufferisée (jamais un aller-retour `DOMDocument` →
+  `saveHTML()`, trop risqué pour la page entière). Scripts externes
+  neutralisés (`type="text/plain"` + `data-nook-src`), scripts inline
+  neutralisés par signature, iframes remplacées par un placeholder
+  accessible. Désambiguïsation des services partageant un domaine (ex. GA
+  vs GTM sur `googletagmanager.com`) en testant les motifs spécifiques
+  avant les domaines génériques.
+- Retrait de consentement : rechargement de page si une catégorie déjà
+  active est révoquée (les scripts déjà exécutés ne peuvent pas tous être
+  arrêtés de façon fiable dynamiquement — comportement documenté et
+  volontaire), pas de rechargement pour un octroi additif (clic sur
+  placeholder ou ajout de catégorie).
+- Shortcodes `[nook_cookie_policy]` (dynamique, groupé par catégorie) et
+  `[nook_cookie_settings]`, + lien de pied de page automatique et
+  désactivable (`banner.footerLink`).
+- Endpoint REST public `/nook/v1/public-config`, et injection inline de la
+  configuration (`window.nookFrontend`) pour éviter un aller-retour REST
+  supplémentaire sur chaque page.
+- Bundle front vérifié : ~9,5 Ko JS minifié + ~2,4 Ko CSS, **aucune copie de
+  React** (seul `wp-i18n` externalisé pour les libellés fixes de l'UI).
+
+### Milestone F (partiel) — Dashboard complet
+
+- Dashboard à 6 onglets (`TabPanel`) : Vue d'ensemble, Cookies, Services,
+  Bannière, Politique, Paramètres. `BannerPage`/`PolicyPage` réutilisent
+  directement les composants du wizard (pas de duplication). Page
+  Paramètres : durée de consentement, mode debug, réinitialisation de
+  configuration (confirmation requise).
+
+### Tests et vérifications
+
+- **60 tests PHP** (`php tests/php/run.php`, framework maison sans
+  dépendance) couvrant : `Settings`, `Migrations`, `CategoryRegistry`,
+  `CookieDatabase`, `ServiceRegistry`, `ServiceState`, `Scanner` (avec
+  fixtures HTTP simulées), `Blocklist`, **`ContentFilter`** (blocage réel de
+  scripts/iframes — la fonctionnalité la plus critique du projet, testée en
+  détail : neutralisation GA4, désambiguïsation GA/GTM, script inline,
+  placeholder YouTube, non-régression sur contenu sans rapport),
+  `SettingsController` (dont le bug historique de casse des clés),
+  `ScanController`, `ServicesController`, `CookiesController`, et un test de
+  fumée du bootstrap complet du plugin.
+- `npm run build`, `npm run lint:js`, `npm run lint:css` : verts.
+- Vérification manuelle : aucune copie de React dans `build/frontend/`,
+  noms de fichiers CSS générés vérifiés (`style-index.css`, pas `index.css`
+  — correction appliquée dans `Assets.php`).
 
 ## In progress
 
-- Rien en cours d'écriture au moment de la rédaction de ce statut — la
-  prochaine session peut reprendre directement sur la section « Next ».
+Rien en cours d'écriture au moment de la rédaction de ce statut.
 
 ## Next
 
-Par ordre de priorité suggéré (voir aussi PROJECT.md « Priorités V1ᵃ ») :
+Par ordre de priorité suggéré pour finaliser la V1 (voir aussi PROJECT.md
+« Logique de travail », Milestones F/G) :
 
-1. **Assistant de configuration réel** — remplacer la coquille `Wizard.jsx`
-   par les 7 étapes fonctionnelles (Site, Analyse, Services, Consentement,
-   Design, Politique de cookies, Finalisation), avec sauvegarde de
-   progression via `POST /nook/v1/settings`.
-2. **Scanner** — implémenter `Nook\Scanner\Scanner::scan()` (crawl
-   `wp_remote_get`, extraction scripts/iframes, confrontation à
-   `data/cookies.json` et à `ServiceRegistry`), endpoints REST
-   `/scan`, `/scan/status`, `/scan/results`.
-3. **Services V1 restants** — `GoogleTagManager`, `GoogleAds`, `MetaPixel`,
-   `YouTube`, `Vimeo`, `GoogleMaps` (même pattern que `GoogleAnalytics.php`).
-4. **Bannière + centre de préférences** côté runtime public (`src/frontend/`)
-   avec stockage du consentement navigateur (structure documentée dans
-   ARCHITECTURE.md §6).
-5. **Script blocking réel** (`includes/Frontend/`) : interception des
-   `<script>`/`<iframe>` correspondant aux patterns de service.
-6. **Shortcodes** `[nook_cookie_settings]` et `[nook_cookie_policy]`.
-7. **Dashboard** complet (Vue d'ensemble, Cookies, Services, Bannière,
-   Politique, Paramètres) en remplacement de la coquille `Dashboard.jsx`.
-8. **Tests** : premiers tests PHPUnit (`tests/php/`, voir son README pour les
-   priorités) et premiers tests JS (`tests/js/`, nécessite
-   `npm install --save-dev vitest` avant de pouvoir exécuter
-   `wp-scripts test-unit-js`).
-9. **PHPCS** : envisager une configuration `WordPress Coding Standards` en
-   dev-only (composer require-dev) pour automatiser la vérification des
-   conventions PHP.
+1. **Tests JS** — aucun test JS n'existe encore (`tests/js/` ne contient
+   qu'un README). `@wordpress/scripts test-unit-js` nécessite un
+   framework de test (Jest, déjà inclus par `@wordpress/scripts` en
+   interne — à vérifier avant d'ajouter une dépendance supplémentaire).
+   Prioriser le store (`src/admin/store/index.js`) et
+   `consent-storage.js`/`isConsentValid()`.
+2. **Google Consent Mode** — non implémenté (hors priorité V1 explicite,
+   voir PROJECT.md §50). À réévaluer seulement si un besoin réel émerge.
+3. **Bloc Gutenberg** équivalent à `[nook_cookie_settings]` — mentionné
+   comme extension possible dans PROJECT.md, pas prioritaire V1.
+4. **Incrémentation automatique de `consent.configVersion`** — actuellement
+   manuelle (champ existant, logique de comparaison
+   `isConsentValid()` déjà centralisée et testée) ; une détection
+   automatique des changements substantiels (nouveau service marketing
+   activé, etc.) serait un raffinement V1.1.
+5. **PHPCS** (`WordPress Coding Standards`) — envisager une configuration
+   dev-only (`composer require-dev`) pour automatiser la vérification des
+   conventions PHP au-delà de la relecture manuelle.
+6. **Vérification en conditions réelles** — aucun test n'a encore été fait
+   sur une installation WordPress complète (Docker/wp-cli indisponibles
+   dans cet environnement de développement). Recommandé avant une release
+   candidate : installer sur un WordPress réel (idéalement avec Elementor
+   et WooCommerce actifs) et valider les critères d'acceptation de
+   PROJECT.md §78-84 (première visite, refus, acceptation,
+   personnalisation, modification, scanner).
+7. **`npm run release`** n'a pas été re-testé dans cette session (le test
+   précédent, en copie temporaire du dépôt, reste documenté dans
+   RELEASE.md) : à revalider avant de taguer une version, notamment parce
+   que le nombre de fichiers PHP/JS a significativement augmenté.
 
 ## Known issues
 
-- **`/usr/bin/git` (fourni par Xcode complet) est bloqué** sur la machine de
-  développement actuelle car la licence Xcode n'est pas acceptée (`sudo
-  xcodebuild -license accept` nécessite une confirmation interactive). Le
-  binaire `/Library/Developer/CommandLineTools/usr/bin/git` (Command Line
-  Tools seules, sans dépendre de la licence Xcode complète) fonctionne
-  correctement et a été utilisé pour initialiser le dépôt (`git init`,
-  premier commit). Si `git` en tant que tel redevient nécessaire dans une
-  session future et que `/usr/bin/git` échoue à nouveau, utiliser directement
-  `/Library/Developer/CommandLineTools/usr/bin/git`, ou faire pointer
-  `xcode-select` vers les Command Line Tools (`sudo xcode-select --switch
-  /Library/Developer/CommandLineTools`).
-- Le script `npm test` (`wp-scripts test-unit-js`) nécessite l'installation de
-  Vitest (`npm install --save-dev vitest`) avant de pouvoir s'exécuter — non
-  fait pour l'instant car aucun test n'existe encore (voir `tests/js/README.md`).
-- Aucune suite PHPUnit n'existe encore (`tests/php/` ne contient qu'un README
-  de priorités).
-- Le scanner, le script blocking, la bannière/centre de préférences et 6 des
-  7 services V1 restent à implémenter (voir « Next »).
+- **`/usr/bin/git` (fourni par Xcode complet) reste bloqué** sur la machine
+  de développement (licence Xcode non acceptée). Utiliser
+  `/Library/Developer/CommandLineTools/usr/bin/git` directement, ou
+  `export PATH="/Library/Developer/CommandLineTools/usr/bin:$PATH"` en
+  début de session.
+- Aucun environnement WordPress réel (Docker/wp-cli) n'était disponible
+  dans cet environnement pour une vérification bout-en-bout : toute la
+  validation s'est faite via le test de fumée PHP (`tests/php/`) simulant
+  les fonctions WordPress utilisées, plus `npm run build`/`lint`. Une
+  vérification manuelle sur un vrai WordPress est fortement recommandée
+  avant publication (voir « Next » point 6).
+- `consent.configVersion` doit être incrémenté manuellement pour l'instant
+  (voir « Next » point 4).
 
 ## Important recent decisions
 
@@ -156,3 +220,12 @@ Par ordre de priorité suggéré (voir aussi PROJECT.md « Priorités V1ᵃ ») 
   le handle de script `react-jsx-runtime` utilisé par le build
   `@wordpress/scripts` (JSX automatic runtime) n'est fiable qu'à partir de
   cette version du cœur WordPress.
+- **Blocage front par réécriture regex de la sortie bufferisée**, jamais par
+  `DOMDocument`/`saveHTML()` (risque de corruption de page) — voir
+  ARCHITECTURE.md §3.4 et §14.
+- **Tests PHP sans PHPUnit** : framework maison minimal
+  (`tests/php/framework.php` + stubs WordPress dans `tests/php/bootstrap.php`),
+  cohérent avec l'absence de dépendance Composer obligatoire au runtime.
+- **`@wordpress/i18n` ajouté au bundle front public**, externalisé (jamais
+  bundlé), pour les quelques libellés fixes du centre de préférences — voir
+  ARCHITECTURE.md §9.
