@@ -16,14 +16,17 @@ import Dashboard from './pages/Dashboard';
 export default function App() {
 	const [ view, setView ] = useState( 'onboarding' );
 
-	const { isConfigured, isLoading, hasResolved } = useSelect( ( select ) => {
-		const store = select( STORE_KEY );
-		return {
-			isConfigured: store.isConfigured(),
-			isLoading: store.isLoading(),
-			hasResolved: store.hasFinishedResolution( 'getSettings', [] ),
-		};
-	}, [] );
+	const { isSetupCompleted, isLoading, hasResolved } = useSelect(
+		( select ) => {
+			const store = select( STORE_KEY );
+			return {
+				isSetupCompleted: store.isSetupCompleted(),
+				isLoading: store.isLoading(),
+				hasResolved: store.hasFinishedResolution( 'getSettings', [] ),
+			};
+		},
+		[]
+	);
 
 	if ( isLoading && ! hasResolved ) {
 		return (
@@ -34,11 +37,20 @@ export default function App() {
 		);
 	}
 
-	if ( view === 'wizard' ) {
-		return <Wizard onExit={ () => setView( 'onboarding' ) } />;
+	function returnToDashboard() {
+		setView( 'onboarding' );
 	}
 
-	if ( isConfigured ) {
+	if ( view === 'wizard' ) {
+		return (
+			<Wizard
+				onExit={ returnToDashboard }
+				onComplete={ returnToDashboard }
+			/>
+		);
+	}
+
+	if ( isSetupCompleted ) {
 		return <Dashboard />;
 	}
 

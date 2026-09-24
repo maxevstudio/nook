@@ -1,0 +1,206 @@
+/**
+ * Styles du runtime public de Nook (bannière, préférences, placeholders).
+ *
+ * CSS minimal et préfixé `nook-` pour ne jamais entrer en conflit avec le
+ * thème du site (voir PROJECT.md §67-68). Les couleurs/rayons spécifiques au
+ * site sont appliqués en inline par banner.js/preferences.js à partir de la
+ * configuration ; ce fichier ne couvre que la mise en page et l'accessibilité
+ * de base.
+ */
+
+.nook-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.45);
+	z-index: 999998;
+}
+
+/* --- Bannière ------------------------------------------------------------ */
+
+.nook-banner {
+	position: fixed;
+	left: 16px;
+	right: 16px;
+	z-index: 999999;
+	padding: 20px;
+	box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2);
+	font-family: inherit;
+	line-height: 1.5;
+}
+
+.nook-banner--bottom {
+	bottom: 16px;
+}
+
+.nook-banner--top {
+	top: 16px;
+}
+
+.nook-banner--contained {
+	max-width: 640px;
+	margin: 0 auto;
+}
+
+.nook-banner__title {
+	display: block;
+	font-size: 16px;
+	margin-bottom: 6px;
+}
+
+.nook-banner__text {
+	margin: 0 0 16px;
+	font-size: 14px;
+}
+
+.nook-banner__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	align-items: center;
+}
+
+.nook-banner__button {
+	line-height: 1.2;
+}
+
+/* --- Centre de préférences ------------------------------------------------ */
+
+.nook-preferences {
+	position: fixed;
+	inset: 0;
+	z-index: 999999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 16px;
+}
+
+.nook-preferences__panel {
+	background: #fff;
+	color: #1e1e1e;
+	max-width: 560px;
+	width: 100%;
+	max-height: 90vh;
+	overflow-y: auto;
+	border-radius: 6px;
+	padding: 24px;
+	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+}
+
+.nook-preferences__header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	margin-bottom: 16px;
+}
+
+.nook-preferences__title {
+	margin: 0;
+	font-size: 18px;
+}
+
+.nook-preferences__close {
+	background: none;
+	border: none;
+	font-size: 22px;
+	line-height: 1;
+	cursor: pointer;
+	padding: 4px 8px;
+}
+
+.nook-preferences__category {
+	padding: 12px 0;
+	border-top: 1px solid #dcdcde;
+}
+
+.nook-preferences__category:first-child {
+	border-top: none;
+}
+
+.nook-preferences__category-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	font-weight: 600;
+}
+
+.nook-preferences__category-description {
+	margin: 4px 0 0;
+	font-size: 13px;
+	color: #50575e;
+}
+
+.nook-preferences__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	margin-top: 20px;
+	justify-content: flex-end;
+}
+
+.nook-preferences__button {
+	padding: 10px 18px;
+	border-radius: 4px;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	border: 2px solid #1e1e1e;
+	background: #fff;
+	color: #1e1e1e;
+}
+
+.nook-preferences__button--primary {
+	background: #1e1e1e;
+	color: #fff;
+}
+
+/* --- Placeholders (iframes bloquées) -------------------------------- */
+
+.nook-placeholder {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	padding: 24px;
+	background: #f0f0f1;
+	border: 1px dashed #8c8f94;
+	text-align: center;
+	min-height: 160px;
+}
+
+.nook-placeholder__message {
+	margin: 0;
+	font-size: 14px;
+	color: #1e1e1e;
+}
+
+.nook-placeholder__button {
+	padding: 8px 16px;
+	border-radius: 4px;
+	border: 2px solid #1e1e1e;
+	background: #1e1e1e;
+	color: #fff;
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+/* --- Lien de préférences (pied de page / shortcode) ------------------ */
+
+.nook-preferences-trigger {
+	background: none;
+	border: none;
+	padding: 0;
+	text-decoration: underline;
+	cursor: pointer;
+	font-size: inherit;
+	color: inherit;
+}
+
+.nook-footer-link {
+	text-align: center;
+	padding: 12px 0;
+	font-size: 13px;
+}
