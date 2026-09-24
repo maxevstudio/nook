@@ -88,6 +88,12 @@ class Menu {
 
 		wp_set_script_translations( 'nook-admin', 'nook', NOOK_PLUGIN_DIR . 'languages' );
 
+		wp_add_inline_script(
+			'nook-admin',
+			'window.nookAdmin = ' . wp_json_encode( array( 'adminUrl' => admin_url() ) ) . ';',
+			'before'
+		);
+
 		$style_path = NOOK_PLUGIN_DIR . 'build/admin/style-index.css';
 		if ( file_exists( $style_path ) ) {
 			wp_enqueue_style(

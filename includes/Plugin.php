@@ -12,8 +12,14 @@
 namespace Nook;
 
 use Nook\Admin\Menu;
-use Nook\REST\SettingsController;
 use Nook\Frontend\Assets;
+use Nook\Frontend\ContentFilter;
+use Nook\Frontend\Shortcodes;
+use Nook\REST\CookiesController;
+use Nook\REST\PublicConfigController;
+use Nook\REST\ScanController;
+use Nook\REST\ServicesController;
+use Nook\REST\SettingsController;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -59,6 +65,12 @@ final class Plugin {
 
 		( new Menu() )->register();
 		( new SettingsController() )->register();
+		( new ScanController() )->register();
+		( new ServicesController() )->register();
+		( new CookiesController() )->register();
+		( new PublicConfigController() )->register();
 		( new Assets() )->register();
+		( new ContentFilter() )->register();
+		( new Shortcodes() )->register();
 	}
 }

@@ -7,6 +7,8 @@
 
 namespace Nook\Frontend;
 
+use Nook\REST\PublicConfigController;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -28,9 +30,19 @@ class Assets {
 	/**
 	 * Charge le runtime front (JS natif, sans React — voir AGENTS.md règle 6).
 	 *
+	 * La configuration publique (catégories, textes/design de la bannière)
+	 * est injectée directement en inline plutôt que rechargée via un appel
+	 * REST supplémentaire au chargement de chaque page (voir PROJECT.md
+	 * §66, performance front) : elle est déjà calculée côté serveur pour
+	 * cette même requête.
+	 *
 	 * @return void
 	 */
 	public function enqueue_assets() {
+		if ( is_admin() ) {
+			return;
+		}
+
 		$asset_file = NOOK_PLUGIN_DIR . 'build/frontend/index.asset.php';
 
 		if ( ! file_exists( $asset_file ) ) {
@@ -47,17 +59,21 @@ class Assets {
 			true
 		);
 
-		// Le rendu de la bannière et le blocage réel des scripts sont un
-		// chantier à venir (voir ARCHITECTURE.md §3.4 et §9, STATUS.md).
+		wp_set_script_translations( 'nook-frontend', 'nook', NOOK_PLUGIN_DIR . 'languages' );
+
+		$config            = PublicConfigController::build();
+		$config['version'] = NOOK_VERSION;
+
 		wp_add_inline_script(
 			'nook-frontend',
-			'window.nookFrontend = ' . wp_json_encode( array( 'version' => NOOK_VERSION ) ) . ';',
+			'window.nookFrontend = ' . wp_json_encode( $config ) . ';',
 			'before'
 		);
 
-		$style_path = NOOK_PLUGIN_DIR . 'build/frontend/index.css';
+		$style_path = NOOK_PLUGIN_DIR . 'build/frontend/style-index.css';
 		if ( file_exists( $style_path ) ) {
-			wp_enqueue_style( 'nook-frontend', NOOK_PLUGIN_URL . 'build/frontend/index.css', array(), $asset['version'] );
+			wp_enqueue_style( 'nook-frontend', NOOK_PLUGIN_URL . 'build/frontend/style-index.css', array(), $asset['version'] );
 		}
 	}
 }
+
