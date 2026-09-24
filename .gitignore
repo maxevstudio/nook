@@ -1,0 +1,14 @@
+node_modules/
+build/
+dist/
+vendor/
+*.log
+.DS_Store
+.env
+.env.local
+languages/*.mo
+composer.lock
+.phpunit.result.cache
+coverage/
+.vscode/
+.idea/

@@ -1,0 +1,29 @@
+{
+  "name": "nook",
+  "version": "0.1.0-dev",
+  "description": "Nook — gestionnaire de consentement aux cookies léger, moderne et WordPress-natif.",
+  "author": "Maxev",
+  "license": "GPL-2.0-or-later",
+  "private": true,
+  "scripts": {
+    "start": "wp-scripts start",
+    "build": "wp-scripts build",
+    "lint:js": "wp-scripts lint-js src",
+    "lint:css": "wp-scripts lint-style \"src/**/*.{css,scss}\"",
+    "format": "wp-scripts format src",
+    "test": "wp-scripts test-unit-js",
+    "packages-update": "wp-scripts packages-update",
+    "release": "node bin/release.mjs"
+  },
+  "devDependencies": {
+    "@wordpress/scripts": "^36.0.0"
+  },
+  "dependencies": {
+    "@wordpress/api-fetch": "^7.0.0",
+    "@wordpress/components": "^41.0.0",
+    "@wordpress/data": "^10.0.0",
+    "@wordpress/element": "^6.0.0",
+    "@wordpress/i18n": "^5.0.0",
+    "@wordpress/icons": "^10.0.0"
+  }
+}

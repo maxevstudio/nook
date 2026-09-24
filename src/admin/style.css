@@ -1,0 +1,61 @@
+.nook-onboarding {
+	display: flex;
+	justify-content: center;
+	padding: 48px 24px;
+}
+
+.nook-onboarding__card {
+	max-width: 560px;
+	text-align: center;
+}
+
+.nook-onboarding__icon {
+	display: flex;
+	justify-content: center;
+	margin-bottom: 16px;
+	color: var(--wp-admin-theme-color, #3858e9);
+}
+
+.nook-onboarding__description {
+	display: block;
+	margin: 12px 0 20px;
+	color: #757575;
+}
+
+.nook-wizard__steps {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	list-style: none;
+	margin: 0 0 16px;
+	padding: 0;
+}
+
+.nook-wizard__step {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 12px;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	font-size: 13px;
+}
+
+.nook-wizard__step-number {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	background: #f0f0f1;
+	font-size: 11px;
+}
+
+.nook-app__loading {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 48px;
+	justify-content: center;
+}
