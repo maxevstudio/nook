@@ -131,7 +131,7 @@ class ScanController {
 
 			$summary = $this->build_summary( $results );
 
-			Settings::update(
+			$settings = Settings::update(
 				array(
 					'scanner' => array(
 						'status'     => 'done',
@@ -142,10 +142,13 @@ class ScanController {
 				)
 			);
 
+			// `scanner` complet renvoyé pour que l'admin mette à jour son
+			// état (dont `lastScanAt`) sans recharger tous les réglages.
 			return new WP_REST_Response(
 				array(
 					'status'  => 'done',
 					'summary' => $summary,
+					'scanner' => $settings['scanner'],
 					'results' => $results,
 				)
 			);

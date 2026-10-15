@@ -23,6 +23,7 @@ nook_test(
 
 		nook_assert_equals( 'done', $data['status'] );
 		nook_assert( isset( $data['summary'] ), 'un résumé doit être retourné' );
+		nook_assert( ! empty( $data['scanner']['lastScanAt'] ), 'la réponse doit inclure scanner.lastScanAt (affichage du résumé dans l’admin)' );
 
 		$settings = Settings::get();
 		nook_assert_equals( 'done', $settings['scanner']['status'] );

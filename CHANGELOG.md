@@ -12,6 +12,9 @@ le projet suit le [Semantic Versioning](https://semver.org/).
   jamais déclenché, puis Promise stockée au lieu des données), ce qui
   faisait planter le wizard dès « Commencer la configuration » et aurait
   empêché l'affichage du dashboard. Constaté en conditions réelles.
+- Étape « Analyse » : le résumé du scan ne s'affichait pas après l'analyse
+  (`lastScanAt` jamais mis à jour côté admin). `/scan` renvoie désormais
+  l'état `scanner` complet.
 
 ## 0.1.0 — 15 octobre 2026
 

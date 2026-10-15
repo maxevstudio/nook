@@ -390,7 +390,7 @@ function reducer( state = DEFAULT_STATE, action ) {
 				settings: state.settings
 					? {
 							...state.settings,
-							scanner: {
+							scanner: action.payload.scanner || {
 								...state.settings.scanner,
 								status: action.payload.status,
 								summary: action.payload.summary,
