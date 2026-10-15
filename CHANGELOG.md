@@ -7,6 +7,12 @@ le projet suit le [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+- Admin : les réglages n'étaient jamais chargés (resolver `getSettings`
+  jamais déclenché, puis Promise stockée au lieu des données), ce qui
+  faisait planter le wizard dès « Commencer la configuration » et aurait
+  empêché l'affichage du dashboard. Constaté en conditions réelles.
+
 ## 0.1.0 — 15 octobre 2026
 
 ### Added

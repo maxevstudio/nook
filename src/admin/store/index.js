@@ -75,6 +75,9 @@ const actions = {
 	persistReset() {
 		return { type: 'PERSIST_RESET' };
 	},
+	requestSettings() {
+		return { type: 'REQUEST_SETTINGS' };
+	},
 
 	startLoadingServices() {
 		return { type: 'START_LOADING_SERVICES' };
@@ -203,6 +206,9 @@ const actions = {
 };
 
 const controls = {
+	REQUEST_SETTINGS() {
+		return apiFetch( { path: '/nook/v1/settings' } );
+	},
 	PERSIST_SETTINGS( { patch } ) {
 		return apiFetch( {
 			path: '/nook/v1/settings',
@@ -248,7 +254,9 @@ const resolvers = {
 	*getSettings() {
 		yield actions.startLoading();
 		try {
-			const settings = yield apiFetch( { path: '/nook/v1/settings' } );
+			// Toujours passer par un control : un `yield apiFetch()` direct
+			// n'est pas attendu par le store et stockerait la Promise.
+			const settings = yield actions.requestSettings();
 			return actions.receiveSettings( settings );
 		} catch ( error ) {
 			return actions.receiveError( error );
