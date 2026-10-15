@@ -576,11 +576,13 @@ scripts WordPress à déclarer dans `wp_enqueue_script`.
   vers le handle partagé `wp-i18n` par `@wordpress/scripts`, aucune copie
   embarquée — même principe que pour React).
 - Un seul petit bundle chargé sur les pages front uniquement (jamais dans
-  l'admin), ~9,5 Ko JS minifié + ~2,4 Ko CSS (build de référence) : bannière,
-  centre de préférences, réactivation des scripts/iframes bloqués.
+  l'admin), ~10,7 Ko JS minifié + ~5 Ko CSS (build de référence) : bannière,
+  centre de préférences, pastille, réactivation des scripts/iframes bloqués.
+  Plus le garde `frontend/guard` (~3 Ko) dans le `<head>`, voir §3.4.
 - Modules : `consent-storage.js` (lecture/écriture du consentement),
   `blocker.js` (réactivation des scripts/iframes), `banner.js` (bannière),
-  `preferences.js` (centre de préférences, focus trap + Échap), `events.js`
+  `preferences.js` (centre de préférences, focus trap + Échap),
+  `floating-button.js` (pastille de réouverture des préférences), `events.js`
   (petite API d'événements `nook:consent-ready`/`consent-updated`/
   `category-enabled`/`category-disabled`), `dom.js` (utilitaire de création
   d'éléments), `index.js` (orchestrateur).
@@ -589,8 +591,30 @@ scripts WordPress à déclarer dans `wp_enqueue_script`.
   `Nook\REST\PublicConfigController::build()` — pas d'appel REST
   supplémentaire à chaque chargement de page (l'endpoint
   `/nook/v1/public-config` reste disponible pour un usage futur).
-- Retrait/modification du consentement : lien de pied de page auto-inséré
-  (désactivable via `banner.footerLink`) et shortcode
+- Présentation (choix validés sur le site de Mathieu Panciatici,
+  voulue minimaliste) :
+  - `banner.width = 'compact'` (défaut) : carte flottante d'environ 400 px
+    dans le coin bas gauche ; « Tout refuser »/« Tout accepter » côte à
+    côte, « Personnaliser » en dessous. `full`/`contained` restent
+    disponibles.
+  - Mobile (≤ 600 px) : quelle que soit la disposition, bannière et centre
+    de préférences deviennent un panneau collé au bas de l'écran qui glisse
+    vers le haut (`env(safe-area-inset-bottom)` respecté).
+  - Après le choix : pastille ronde avec icône cookie en bas à gauche
+    (`banner.floatingButton`, défaut vrai), qui s'allonge au survol pour
+    afficher « Préférences cookies » (seulement avec une souris :
+    `@media (hover: hover)`). Animations désactivées si
+    `prefers-reduced-motion`.
+  - Le rayon (`banner.radius`, défaut 12) passe par la variable CSS
+    `--nook-radius` pour que le panneau mobile n'arrondisse que ses coins
+    supérieurs.
+  - Les thèmes stylent souvent tous les `button` avec la même priorité que
+    nos classes, et sont chargés après Nook (constaté : `reset.css` de Hello
+    Elementor, bordure rose et fond au survol). Les boutons de Nook utilisent
+    donc des sélecteurs `button.nook-…`, survol et focus compris.
+- Retrait/modification du consentement : pastille flottante (ci-dessus),
+  lien de pied de page optionnel (`banner.footerLink`, désactivé par
+  défaut depuis l'arrivée de la pastille) et shortcode
   `[nook_cookie_settings]`, tous deux basés sur un simple attribut
   `data-nook-action="open-preferences"` intercepté par un unique écouteur
   de clic délégué (`index.js`).

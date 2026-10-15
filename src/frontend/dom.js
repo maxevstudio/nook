@@ -22,7 +22,15 @@ export function el( tag, attrs, children ) {
 		if ( 'text' === key ) {
 			node.textContent = value;
 		} else if ( 'style' === key && value && 'object' === typeof value ) {
-			Object.assign( node.style, value );
+			Object.keys( value ).forEach( ( property ) => {
+				// Propriétés personnalisées CSS (`--nook-…`) : setProperty()
+				// est la seule façon de les définir en inline.
+				if ( 0 === property.indexOf( '--' ) ) {
+					node.style.setProperty( property, value[ property ] );
+				} else {
+					node.style[ property ] = value[ property ];
+				}
+			} );
 		} else if ( 0 === key.indexOf( 'on' ) && 'function' === typeof value ) {
 			node.addEventListener( key.slice( 2 ).toLowerCase(), value );
 		} else if ( undefined !== value && null !== value && false !== value ) {

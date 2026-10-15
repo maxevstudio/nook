@@ -23,9 +23,11 @@
 	right: 16px;
 	z-index: 999999;
 	padding: 20px;
-	box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2);
+	border-radius: var(--nook-radius, 4px);
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 	font-family: inherit;
 	line-height: 1.5;
+	animation: nook-fade-up 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .nook-banner--bottom {
@@ -39,6 +41,23 @@
 .nook-banner--contained {
 	max-width: 640px;
 	margin: 0 auto;
+}
+
+/* Compacte : carte discrète dans le coin, au même endroit que la pastille
+   de préférences qui la remplace une fois le choix fait. */
+.nook-banner--compact {
+	right: auto;
+	left: 20px;
+	width: min(400px, calc(100vw - 40px));
+	box-sizing: border-box;
+}
+
+.nook-banner--compact.nook-banner--bottom {
+	bottom: 20px;
+}
+
+.nook-banner--compact.nook-banner--top {
+	top: 20px;
 }
 
 .nook-banner__title {
@@ -59,8 +78,58 @@
 	align-items: center;
 }
 
+.nook-banner--compact .nook-banner__text {
+	font-size: 13px;
+}
+
+/* Carte compacte (et mobile, plus bas) : refus et acceptation côte à côte,
+   « Personnaliser » en dessous. */
+.nook-banner--compact .nook-banner__actions {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 8px;
+}
+
+.nook-banner--compact .nook-banner__button--customize {
+	grid-column: 1 / -1;
+	order: 3;
+	justify-self: start;
+}
+
 .nook-banner__button {
 	line-height: 1.2;
+}
+
+/* Mobile : quelle que soit la disposition, panneau collé au bas de l'écran
+   qui glisse vers le haut. */
+@media (max-width: 600px) {
+
+	.nook-banner,
+	.nook-banner--compact,
+	.nook-banner--compact.nook-banner--bottom,
+	.nook-banner--compact.nook-banner--top {
+		top: auto;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		width: auto;
+		margin: 0;
+		max-width: none;
+		padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+		border-radius: max(var(--nook-radius, 4px), 16px) max(var(--nook-radius, 4px), 16px) 0 0;
+		animation-name: nook-slide-up;
+	}
+
+	.nook-banner__actions {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+	}
+
+	.nook-banner__button--customize {
+		grid-column: 1 / -1;
+		order: 3;
+		justify-self: start;
+	}
 }
 
 /* --- Centre de préférences ------------------------------------------------ */
@@ -82,7 +151,7 @@
 	width: 100%;
 	max-height: 90vh;
 	overflow-y: auto;
-	border-radius: 6px;
+	border-radius: 12px;
 	padding: 24px;
 	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
 }
@@ -99,9 +168,10 @@
 	font-size: 18px;
 }
 
-.nook-preferences__close {
+button.nook-preferences__close {
 	background: none;
 	border: none;
+	color: #1e1e1e;
 	font-size: 22px;
 	line-height: 1;
 	cursor: pointer;
@@ -139,7 +209,7 @@
 	justify-content: flex-end;
 }
 
-.nook-preferences__button {
+button.nook-preferences__button {
 	padding: 10px 18px;
 	border-radius: 4px;
 	font-size: 14px;
@@ -150,9 +220,199 @@
 	color: #1e1e1e;
 }
 
-.nook-preferences__button--primary {
+button.nook-preferences__button--primary {
 	background: #1e1e1e;
 	color: #fff;
+}
+
+.nook-preferences__panel {
+	animation: nook-fade-up 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@media (max-width: 600px) {
+
+	.nook-preferences {
+		align-items: flex-end;
+		padding: 0;
+	}
+
+	.nook-preferences__panel {
+		max-height: 85vh;
+		border-radius: 16px 16px 0 0;
+		padding-bottom: calc(24px + env(safe-area-inset-bottom));
+		animation-name: nook-slide-up;
+	}
+
+	.nook-preferences__actions {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+	}
+
+	button.nook-preferences__button--primary {
+		grid-column: 1 / -1;
+	}
+}
+
+/* --- Boutons : protection contre les styles globaux du thème ----------
+
+   Beaucoup de thèmes (ex. reset.css de Hello Elementor) stylent tous les
+   `button` avec la même priorité que nos classes et sont chargés après
+   Nook : bordure, rayon, marges et fond au survol écraseraient
+   l'interface. Les sélecteurs `button.nook-…` ci-dessous l'emportent,
+   survol et focus compris. */
+
+button.nook-floating,
+button.nook-preferences__close,
+button.nook-preferences__button,
+button.nook-placeholder__button,
+button.nook-preferences-trigger {
+	margin: 0;
+	text-transform: none;
+	letter-spacing: normal;
+	line-height: 1.2;
+}
+
+button.nook-preferences__close:hover,
+button.nook-preferences__close:focus,
+button.nook-preferences-trigger:hover,
+button.nook-preferences-trigger:focus {
+	background: none;
+	color: inherit;
+}
+
+button.nook-preferences__button:hover,
+button.nook-preferences__button:focus {
+	background: #f0f0f1;
+	color: #1e1e1e;
+}
+
+button.nook-preferences__button--primary:hover,
+button.nook-preferences__button--primary:focus,
+button.nook-placeholder__button:hover,
+button.nook-placeholder__button:focus {
+	background: #000;
+	color: #fff;
+}
+
+button.nook-floating:hover,
+button.nook-floating:focus {
+	box-shadow: 0 6px 20px rgba(0, 0, 0, 0.24);
+}
+
+/* --- Pastille de préférences (après le choix) ------------------------ */
+
+button.nook-floating {
+	position: fixed;
+	left: 20px;
+	bottom: 20px;
+	z-index: 999990;
+	display: inline-flex;
+	align-items: center;
+	height: 48px;
+	min-width: 48px;
+	padding: 0 12px;
+	box-sizing: border-box;
+	border: none;
+	border-radius: 999px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+	font-family: inherit;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	animation: nook-pop 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.nook-floating__icon {
+	display: flex;
+	flex-shrink: 0;
+}
+
+.nook-floating__label {
+	max-width: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	opacity: 0;
+	transition: max-width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), margin 0.3s, opacity 0.2s;
+}
+
+button.nook-floating:focus-visible {
+	outline: 3px solid currentcolor;
+	outline-offset: 3px;
+}
+
+/* L'allongement n'a de sens qu'avec une souris : sur écran tactile, seule
+   l'icône reste affichée. */
+@media (hover: hover) {
+
+	button.nook-floating:hover .nook-floating__label,
+	button.nook-floating:focus-visible .nook-floating__label {
+		max-width: 220px;
+		margin-left: 8px;
+		opacity: 1;
+	}
+}
+
+@media (max-width: 600px) {
+
+	button.nook-floating {
+		left: 16px;
+		bottom: calc(16px + env(safe-area-inset-bottom));
+		height: 44px;
+		min-width: 44px;
+		padding: 0 10px;
+	}
+}
+
+/* --- Animations ------------------------------------------------------ */
+
+@keyframes nook-fade-up {
+
+	from {
+		opacity: 0;
+		transform: translateY(12px);
+	}
+
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+@keyframes nook-slide-up {
+
+	from {
+		transform: translateY(100%);
+	}
+
+	to {
+		transform: none;
+	}
+}
+
+@keyframes nook-pop {
+
+	from {
+		opacity: 0;
+		transform: scale(0.6);
+	}
+
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.nook-banner,
+	.nook-preferences__panel,
+	button.nook-floating {
+		animation: none;
+	}
+
+	.nook-floating__label {
+		transition: none;
+	}
 }
 
 /* --- Placeholders (iframes bloquées) -------------------------------- */
@@ -176,7 +436,7 @@
 	color: #1e1e1e;
 }
 
-.nook-placeholder__button {
+button.nook-placeholder__button {
 	padding: 8px 16px;
 	border-radius: 4px;
 	border: 2px solid #1e1e1e;
@@ -189,7 +449,7 @@
 
 /* --- Lien de préférences (pied de page / shortcode) ------------------ */
 
-.nook-preferences-trigger {
+button.nook-preferences-trigger {
 	background: none;
 	border: none;
 	padding: 0;

@@ -5,6 +5,7 @@
  * jamais de consentement réel.
  */
 import {
+	Notice,
 	RangeControl,
 	SelectControl,
 	TextControl,
@@ -25,6 +26,7 @@ const BUTTON_STYLES = [
 ];
 
 const WIDTHS = [
+	{ label: __( 'Compacte (coin de l’écran)', 'nook' ), value: 'compact' },
 	{ label: __( 'Pleine largeur', 'nook' ), value: 'full' },
 	{ label: __( 'Encadrée', 'nook' ), value: 'contained' },
 ];
@@ -143,6 +145,40 @@ export default function DesignStep( { value, onChange } ) {
 						onChange={ ( overlay ) => onChange( { overlay } ) }
 						__nextHasNoMarginBottom
 					/>
+					<ToggleControl
+						label={ __(
+							'Pastille « Préférences cookies » en bas à gauche',
+							'nook'
+						) }
+						help={ __(
+							'Affichée une fois le choix fait, elle permet au visiteur de modifier son consentement à tout moment.',
+							'nook'
+						) }
+						checked={ false !== value.floatingButton }
+						onChange={ ( floatingButton ) =>
+							onChange( { floatingButton } )
+						}
+						__nextHasNoMarginBottom
+					/>
+					<ToggleControl
+						label={ __(
+							'Lien « Gérer mes cookies » en pied de page',
+							'nook'
+						) }
+						checked={ Boolean( value.footerLink ) }
+						onChange={ ( footerLink ) =>
+							onChange( { footerLink } )
+						}
+						__nextHasNoMarginBottom
+					/>
+					{ false === value.floatingButton && ! value.footerLink && (
+						<Notice status="warning" isDismissible={ false }>
+							{ __(
+								'Sans pastille ni lien de pied de page, ajoutez le shortcode [nook_cookie_settings] quelque part sur le site : le visiteur doit toujours pouvoir modifier son choix.',
+								'nook'
+							) }
+						</Notice>
+					) }
 				</div>
 
 				<div className="nook-design-editor__preview">

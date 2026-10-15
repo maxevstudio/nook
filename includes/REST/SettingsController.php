@@ -39,7 +39,7 @@ class SettingsController {
 		'site.type'      => array( 'business', 'ecommerce', 'other' ),
 		'banner.position' => array( 'bottom', 'top' ),
 		'banner.buttonStyle' => array( 'solid', 'outline' ),
-		'banner.width'   => array( 'full', 'contained' ),
+		'banner.width'   => array( 'compact', 'full', 'contained' ),
 		'policy.mode'    => array( 'create', 'existing', 'none' ),
 		'scanner.status' => array( 'idle', 'running', 'done', 'error' ),
 	);

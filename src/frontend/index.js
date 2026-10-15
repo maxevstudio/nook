@@ -20,6 +20,7 @@ import {
 import { activateCategory, replaceIframePlaceholder } from './blocker';
 import { removeBanner, renderBanner } from './banner';
 import { close as closePreferences, renderPreferences } from './preferences';
+import { removeFloatingButton, renderFloatingButton } from './floating-button';
 import { dispatchNookEvent } from './events';
 
 ( function () {
@@ -62,6 +63,7 @@ import { dispatchNookEvent } from './events';
 			currentState.consent = stored;
 			applyCategories( stored.categories, false );
 			dispatchNookEvent( 'nook:consent-ready', { consent: stored } );
+			showFloatingButton();
 		} else {
 			showBanner();
 		}
@@ -135,6 +137,7 @@ import { dispatchNookEvent } from './events';
 
 		removeBanner();
 		closePreferences();
+		showFloatingButton();
 
 		applyCategories( categories, true );
 		dispatchNookEvent( 'nook:consent-updated', { consent: record } );
@@ -149,7 +152,20 @@ import { dispatchNookEvent } from './events';
 		}
 	}
 
+	/**
+	 * Affiche la pastille de réouverture des préférences, sauf si
+	 * l'administrateur l'a désactivée (`banner.floatingButton`).
+	 */
+	function showFloatingButton() {
+		if ( false === currentState.config.banner.floatingButton ) {
+			return;
+		}
+
+		renderFloatingButton( currentState.config.banner, openPreferences );
+	}
+
 	function showBanner() {
+		removeFloatingButton();
 		renderBanner( currentState.config.banner, {
 			onAcceptAll: () =>
 				saveAndApply(
@@ -165,6 +181,7 @@ import { dispatchNookEvent } from './events';
 
 	function openPreferences() {
 		removeBanner();
+		removeFloatingButton();
 
 		renderPreferences(
 			currentState.config.categories,
@@ -179,7 +196,7 @@ import { dispatchNookEvent } from './events';
 					saveAndApply(
 						allCategories( currentState.config.categories, false )
 					),
-				onClose: () => {},
+				onClose: showFloatingButton,
 			},
 			{ closable: Boolean( currentState.consent ) }
 		);
@@ -254,5 +271,6 @@ import { dispatchNookEvent } from './events';
 		dispatchNookEvent( 'nook:consent-updated', { consent: record } );
 
 		removeBanner();
+		showFloatingButton();
 	}
 } )();

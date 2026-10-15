@@ -290,6 +290,11 @@
 	width: 80%;
 }
 
+.nook-preview-banner--compact {
+	width: 60%;
+	min-width: 200px;
+}
+
 .nook-preview-banner p {
 	margin: 8px 0;
 }

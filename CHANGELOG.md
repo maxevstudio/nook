@@ -11,6 +11,14 @@ le projet suit le [Semantic Versioning](https://semver.org/).
 - Blocage des iframes créées en JavaScript (ex. lecteur YouTube chargé au
   clic) : petit garde chargé dans le `<head>` qui met l'URL de côté avant
   toute requête et affiche le placeholder « Autoriser et afficher ».
+- Bannière « Compacte » (nouvelle disposition par défaut) : carte flottante
+  minimaliste en bas à gauche au lieu d'une barre pleine largeur.
+- Mobile : bannière et centre de préférences en panneau qui glisse depuis
+  le bas de l'écran.
+- Pastille « Préférences cookies » en bas à gauche après le choix (icône
+  cookie qui s'allonge au survol), activable dans l'onglet Bannière. Le
+  lien de pied de page devient optionnel (désactivé par défaut) et
+  réglable lui aussi.
 - Le scan détecte les services dont l'URL d'embed n'apparaît que dans un
   script inline, et signale Google Fonts (avertissement avec la marche à
   suivre pour héberger les polices localement).
@@ -19,6 +27,8 @@ le projet suit le [Semantic Versioning](https://semver.org/).
 - Le filtre serveur ne neutralise plus les données structurées JSON-LD,
   les scripts de Nook, ni les scripts qui ne font que construire une
   iframe d'embed (bloquée désormais par le garde).
+- Boutons de Nook déformés par les styles globaux de certains thèmes
+  (bordure rose, coins carrés, fond au survol avec Hello Elementor).
 - Récapitulatif du wizard : « Page créée » au lieu de « va être créée »
   quand la page de politique existe déjà.
 - Admin : les réglages n'étaient jamais chargés (resolver `getSettings`

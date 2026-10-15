@@ -167,9 +167,19 @@ réglages admin (wizard qui plantait), résumé du scan, blocage des iframes
 créées en JavaScript, scripts inline (JSON-LD, embeds), avertissement Google
 Fonts.
 
-Reste à examiner sur ce site : égalité visuelle des boutons de la bannière
-(« Tout accepter » plein vs « Tout refuser » en contour, voir AGENTS.md
-règle 12), centre de préférences, retrait du consentement, mobile.
+Présentation revue à la demande de l'auteur (minimaliste) : bannière
+compacte en bas à gauche, panneau glissant sur mobile, pastille cookie
+après le choix. Vérifié sur ordinateur et en 375 px. Le site de Mathieu est
+réglé en « Compacte », rayon 16 px, sans lien de pied de page.
+
+**Décision en attente — style des boutons** : l'auteur souhaite garder
+« Tout accepter » plus mis en avant que « Tout refuser » (éventuellement
+couleur profonde vs plus terne), après avoir regardé ce que font les autres
+CMP. Ceci s'écarte d'AGENTS.md règle 12 et des recommandations CNIL
+(même niveau, même forme) : à trancher et, le cas échéant, à documenter.
+
+**À publier** : ces changements sont commités en local mais **pas encore
+poussés** sur GitHub — l'auteur teste d'abord de son côté.
 
 ## Next
 

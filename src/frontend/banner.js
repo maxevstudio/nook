@@ -98,7 +98,10 @@ export function renderBanner( banner, handlers ) {
 			style: {
 				backgroundColor: banner.backgroundColor,
 				color: banner.textColor,
-				borderRadius: `${ banner.radius }px`,
+				// Variable plutôt que `border-radius` inline : sur mobile, la
+				// bannière devient un panneau collé au bas de l'écran dont
+				// seuls les coins supérieurs sont arrondis (voir style.css).
+				'--nook-radius': `${ banner.radius }px`,
 			},
 		},
 		[ content, actions ]
