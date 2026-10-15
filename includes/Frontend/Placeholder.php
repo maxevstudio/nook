@@ -50,13 +50,29 @@ class Placeholder {
 			esc_attr( $title ),
 			esc_attr( $style ),
 			esc_attr( $title ? $title : $service_name ),
-			sprintf(
-				/* translators: %s: nom du service tiers (ex. YouTube) */
-				esc_html__( 'Ce contenu est fourni par %s. Pour l’afficher, vous devez autoriser la catégorie de cookies correspondante.', 'nook' ),
-				esc_html( $service_name )
-			),
-			esc_html__( 'Autoriser et afficher', 'nook' )
+			sprintf( esc_html( self::get_message_template() ), esc_html( $service_name ) ),
+			esc_html( self::get_button_label() )
 		);
+	}
+
+	/**
+	 * Message du placeholder, `%s` étant le nom du service. Partagé avec le
+	 * garde navigateur pour que les deux placeholders soient identiques.
+	 *
+	 * @return string
+	 */
+	public static function get_message_template() {
+		/* translators: %s: nom du service tiers (ex. YouTube) */
+		return __( 'Ce contenu est fourni par %s. Pour l’afficher, vous devez autoriser la catégorie de cookies correspondante.', 'nook' );
+	}
+
+	/**
+	 * Libellé du bouton du placeholder.
+	 *
+	 * @return string
+	 */
+	public static function get_button_label() {
+		return __( 'Autoriser et afficher', 'nook' );
 	}
 
 	/**
@@ -64,10 +80,13 @@ class Placeholder {
 	 * placeholder, sans dépendre du ServiceRegistry complet (le rendu doit
 	 * rester léger et fonctionner aussi pour un service personnalisé).
 	 *
+	 * Utilisé aussi par Assets::build_guard_config() pour les placeholders
+	 * créés côté navigateur (src/frontend/guard.js).
+	 *
 	 * @param string $slug Slug du service.
 	 * @return string
 	 */
-	private static function get_service_label( $slug ) {
+	public static function get_service_label( $slug ) {
 		$labels = array(
 			'youtube'            => 'YouTube',
 			'vimeo'              => 'Vimeo',

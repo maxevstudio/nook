@@ -11,7 +11,7 @@
  * consent         { configVersion, duration, categories }
  * banner          { title, text, buttons, position, colors, ... }
  * policy          { mode, pageId, title }
- * scanner         { status, lastScanAt, urls, summary }
+ * scanner         { status, lastScanAt, urls, summary, warnings }
  * services        { <slug>: {...} }  (rempli par le Milestone C)
  * cookies         { <id>: {...} }    (rempli par le Milestone B)
  * wizard          { currentStep, completedSteps }
@@ -91,6 +91,7 @@ class Settings {
 					'services' => 0,
 					'toReview' => 0,
 				),
+				'warnings'   => array(),
 			),
 			'services'       => array(),
 			'cookies'        => array(),

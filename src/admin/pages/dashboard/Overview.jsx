@@ -7,6 +7,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { Button, Card, CardBody, Notice } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { STORE_KEY } from '../../store';
+import ScanWarnings from '../../components/ScanWarnings';
 
 /**
  * Formate une date ISO en date lisible localement, ou un texte de repli si
@@ -64,6 +65,8 @@ export default function Overview() {
 								__( 'La dernière analyse a échoué.', 'nook' ) }
 						</Notice>
 					) }
+
+					<ScanWarnings scanner={ scanner } />
 
 					<div className="nook-dashboard__grid">
 						<div className="nook-dashboard__section">

@@ -73,6 +73,7 @@ class Scanner {
 		$inline_scripts   = array();
 		$iframes          = array();
 		$cookie_names     = array();
+		$google_fonts     = array();
 		$errors           = array();
 		$pages_analyzed   = 0;
 
@@ -91,6 +92,7 @@ class Scanner {
 
 			$this->extract_scripts( $outcome['body'], $external_scripts, $inline_scripts );
 			$this->extract_iframes( $outcome['body'], $iframes );
+			$this->extract_google_fonts( $outcome['body'], $google_fonts );
 
 			foreach ( $outcome['cookies'] as $cookie_name ) {
 				$cookie_names[ $cookie_name ] = true;
@@ -106,8 +108,50 @@ class Scanner {
 			'iframes'       => array_keys( $iframes ),
 			'cookies'       => $this->match_cookies( array_keys( $cookie_names ) ),
 			'services'      => $this->match_services( array_keys( $external_scripts ), $inline_scripts, array_keys( $iframes ), $active_plugins ),
+			'warnings'      => $this->build_warnings( array_keys( $google_fonts ) ),
 			'errors'        => $errors,
 		);
+	}
+
+	/**
+	 * Repère les polices chargées depuis Google Fonts (feuilles de style
+	 * `fonts.googleapis.com` ou fichiers `fonts.gstatic.com`).
+	 *
+	 * Ce n'est pas un cookie : la bannière ne peut pas régler ce point. Mais
+	 * l'adresse IP du visiteur est transmise à Google à chaque page, ce qui
+	 * a été jugé contraire au RGPD (LG München, 20 janvier 2022). Le scanner
+	 * le signale pour que l'administrateur héberge les polices localement.
+	 *
+	 * @param string $html  Corps HTML de la page.
+	 * @param array  $fonts Tableau (référence) accumulant les URLs trouvées.
+	 * @return void
+	 */
+	private function extract_google_fonts( $html, array &$fonts ) {
+		if ( preg_match_all( '#(?:https?:)?//fonts\.(?:googleapis\.com/css2?\?|gstatic\.com/s/)[^"\'\s<>)]*#i', (string) $html, $matches ) ) {
+			foreach ( $matches[0] as $url ) {
+				$fonts[ html_entity_decode( $url, ENT_QUOTES ) ] = true;
+			}
+		}
+	}
+
+	/**
+	 * Construit la liste des avertissements de conformité qui ne relèvent
+	 * pas de la bannière (voir extract_google_fonts()).
+	 *
+	 * @param string[] $google_fonts URLs Google Fonts détectées.
+	 * @return array[] Liste de { code, urls }.
+	 */
+	private function build_warnings( array $google_fonts ) {
+		$warnings = array();
+
+		if ( ! empty( $google_fonts ) ) {
+			$warnings[] = array(
+				'code' => 'google-fonts',
+				'urls' => array_slice( $google_fonts, 0, 10 ),
+			);
+		}
+
+		return $warnings;
 	}
 
 	/**
@@ -371,6 +415,17 @@ class Scanner {
 						$provenance[] = array(
 							'type'  => 'iframe',
 							'value' => $src,
+						);
+					}
+				}
+
+				// Iframe créée en JavaScript (ex. lecteur YouTube chargé au
+				// clic) : l'URL d'embed n'apparaît que dans le script inline.
+				foreach ( $inline_scripts as $content ) {
+					if ( false !== stripos( $content, $pattern ) ) {
+						$provenance[] = array(
+							'type'  => 'inline-script',
+							'value' => $pattern,
 						);
 					}
 				}

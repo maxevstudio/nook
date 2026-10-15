@@ -11,6 +11,10 @@ const POLICY_LABELS = {
 	none: __( 'Non configurée pour le moment', 'nook' ),
 };
 
+// La page est créée en quittant l'étape « Politique de cookies » : au
+// récapitulatif, elle existe donc déjà dans le cas courant.
+const POLICY_CREATED_LABEL = __( 'Page créée', 'nook' );
+
 export default function FinishStep( { settings, onFinish, isSaving } ) {
 	const summary = ( settings.scanner && settings.scanner.summary ) || {
 		cookies: 0,
@@ -19,7 +23,10 @@ export default function FinishStep( { settings, onFinish, isSaving } ) {
 	const bannerConfigured = Boolean(
 		settings.banner && settings.banner.title
 	);
-	const policyLabel = POLICY_LABELS[ settings.policy.mode ] || '';
+	const policyLabel =
+		'create' === settings.policy.mode && settings.policy.pageId
+			? POLICY_CREATED_LABEL
+			: POLICY_LABELS[ settings.policy.mode ] || '';
 
 	return (
 		<div className="nook-step nook-step--finish">

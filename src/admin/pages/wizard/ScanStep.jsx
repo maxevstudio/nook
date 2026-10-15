@@ -8,6 +8,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { Button, Notice, Spinner } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { STORE_KEY } from '../../store';
+import ScanWarnings from '../../components/ScanWarnings';
 
 export default function ScanStep() {
 	const { runScan, fetchServices } = useDispatch( STORE_KEY );
@@ -94,6 +95,10 @@ export default function ScanStep() {
 						</p>
 					) }
 				</div>
+			) }
+
+			{ ! isRunning && hasScanned && (
+				<ScanWarnings scanner={ scanner } />
 			) }
 
 			{ partialErrors.length > 0 && (

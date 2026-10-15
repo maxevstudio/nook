@@ -150,17 +150,26 @@ Milestone F/G (voir « Next » ci-dessous) avant une release candidate.
 - `Nook\Updater\GitHubUpdater` : les sites installés reçoivent les
   nouvelles versions via l'écran natif « Mises à jour » (voir
   ARCHITECTURE.md §15, RELEASE.md « Publier une version »).
-- 64 tests PHP (dont 4 pour l'updater).
+- 73 tests PHP.
 
 ## In progress
 
 **Test en conditions réelles sur le site de Mathieu Panciatici** (copie
-locale MAMP, `localhost:8888/mathieupanciatici`, Elementor + Elementor Pro,
-aucun autre plugin de consentement) : Nook 0.1.0 est copié dans
-`wp-content/plugins/nook` depuis le ZIP de la release ; activation et
-parcours du wizard à faire, puis validation des critères d'acceptation de
-PROJECT.md (voir « Next » point 6). Les correctifs issus de ce test
-passeront par de nouvelles releases.
+locale MAMP, `localhost:8888/mathieupanciatici`, WordPress 7.1.3,
+Elementor/Elementor Pro, SimpleTrad). Wizard parcouru de bout en bout,
+Nook activé, page « Politique de cookies » créée. Validé côté visiteur :
+bannière, « Tout refuser », placeholder puis « Autoriser et afficher » sur
+les vidéos YouTube chargées au clic, aucune requête YouTube avant
+consentement, lien de préférences en pied de page.
+
+Corrigé grâce à ce test (non encore publié en release) : chargement des
+réglages admin (wizard qui plantait), résumé du scan, blocage des iframes
+créées en JavaScript, scripts inline (JSON-LD, embeds), avertissement Google
+Fonts.
+
+Reste à examiner sur ce site : égalité visuelle des boutons de la bannière
+(« Tout accepter » plein vs « Tout refuser » en contour, voir AGENTS.md
+règle 12), centre de préférences, retrait du consentement, mobile.
 
 ## Next
 

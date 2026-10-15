@@ -138,6 +138,7 @@ class ScanController {
 						'lastScanAt' => current_time( 'mysql', true ),
 						'urls'       => $results['urls'],
 						'summary'    => $summary,
+						'warnings'   => $results['warnings'],
 					),
 				)
 			);

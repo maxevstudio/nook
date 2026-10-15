@@ -178,3 +178,65 @@ nook_test(
 		}
 	}
 );
+
+nook_test(
+	'filter_output() laisse intact un script inline qui construit seulement une iframe d’embed (bloquée ensuite par guard.js)',
+	function () {
+		$filter = new ContentFilter();
+		$filter->set_blocklist( nook_test_sample_blocklist() );
+
+		$html   = '<script>var f = document.createElement("iframe"); f.src = "https://www.youtube-nocookie.com/embed/" + id;</script>';
+		$output = $filter->filter_output( $html );
+
+		nook_assert_equals( $html, $output );
+	}
+);
+
+nook_test(
+	'filter_output() ne touche jamais aux données structurées JSON-LD citant un domaine bloqué',
+	function () {
+		$filter = new ContentFilter();
+		$filter->set_blocklist( nook_test_sample_blocklist() );
+
+		$html   = '<script type="application/ld+json">{"sameAs":["https://www.youtube.com/@exemple"]}</script>';
+		$output = $filter->filter_output( $html );
+
+		nook_assert_equals( $html, $output );
+	}
+);
+
+nook_test(
+	'filter_output() ne neutralise pas les scripts de Nook (configuration du garde)',
+	function () {
+		$filter = new ContentFilter();
+		$filter->set_blocklist( nook_test_sample_blocklist() );
+
+		$html   = '<script id="nook-guard-js-before">window.nookGuardConfig = {"domains":["youtube.com"]};</script>';
+		$output = $filter->filter_output( $html );
+
+		nook_assert_equals( $html, $output );
+	}
+);
+
+nook_test(
+	'filter_output() neutralise toujours un chargeur inline repéré par son seul domaine (service personnalisé)',
+	function () {
+		$filter = new ContentFilter();
+		$filter->set_blocklist(
+			array(
+				array(
+					'slug'           => 'hotjar',
+					'category'       => 'statistics',
+					'domains'        => array( 'static.hotjar.com' ),
+					'scriptPatterns' => array(),
+					'iframePatterns' => array(),
+				),
+			)
+		);
+
+		$output = $filter->filter_output( '<script>(function(){ var s = document.createElement("script"); s.src = "https://static.hotjar.com/c/hotjar.js"; })();</script>' );
+
+		nook_assert( false !== strpos( $output, 'type="text/plain"' ), 'le chargeur inline doit être neutralisé' );
+		nook_assert( false !== strpos( $output, 'data-nook-service="hotjar"' ), 'le service doit être identifié' );
+	}
+);

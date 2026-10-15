@@ -15,6 +15,7 @@
  * @param {string} category Slug de catégorie (ex. `statistics`).
  */
 export function activateCategory( category ) {
+	allowInGuard( category );
 	activateScripts( category );
 	activateIframes( category );
 }
@@ -86,6 +87,9 @@ export function replaceIframePlaceholder( placeholder ) {
 		return;
 	}
 
+	// Sans cela, le garde (guard.js) bloquerait à nouveau l'iframe recréée.
+	allowInGuard( placeholder.getAttribute( 'data-nook-category' ) );
+
 	const iframe = document.createElement( 'iframe' );
 	iframe.setAttribute( 'src', src );
 
@@ -105,9 +109,34 @@ export function replaceIframePlaceholder( placeholder ) {
 		iframe.setAttribute( 'title', title );
 	}
 
+	// Attributs d'origine conservés par guard.js pour une iframe créée en
+	// JavaScript (ex. `allow="autoplay"`, classes de mise en page).
+	[ 'allow', 'class', 'style' ].forEach( ( name ) => {
+		const value = placeholder.getAttribute( 'data-nook-' + name );
+
+		if ( value ) {
+			iframe.setAttribute( name, value );
+		}
+	} );
+
 	iframe.setAttribute( 'allowfullscreen', '' );
-	iframe.style.border = '0';
-	iframe.style.maxWidth = '100%';
+
+	if ( ! placeholder.hasAttribute( 'data-nook-style' ) ) {
+		iframe.style.border = '0';
+		iframe.style.maxWidth = '100%';
+	}
 
 	placeholder.parentNode.replaceChild( iframe, placeholder );
+}
+
+/**
+ * Lève le blocage dynamique d'une catégorie dans le garde chargé dans le
+ * `<head>` (src/frontend/guard.js), s'il est présent.
+ *
+ * @param {string|null} category Slug de catégorie.
+ */
+function allowInGuard( category ) {
+	if ( category && window.nookGuard ) {
+		window.nookGuard.allow( category );
+	}
 }

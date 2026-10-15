@@ -175,7 +175,15 @@ Le scanner **serveur** est implémenté (`Scanner::scan()`, `UrlDiscovery::disco
    - confrontation aux définitions de `ServiceRegistry` (domaines et motifs
      de script/iframe) et à quelques indices de plugins actifs connus (ex.
      Google Site Kit → Google Analytics/GTM potentiels, via
-     `get_option('active_plugins')`).
+     `get_option('active_plugins')`). Les motifs d'iframe sont aussi
+     cherchés dans les scripts inline : une iframe créée en JavaScript (ex.
+     lecteur YouTube chargé au clic) n'apparaît que là ;
+   - repérage de Google Fonts (`fonts.googleapis.com/css`,
+     `fonts.gstatic.com/s/`) : ce n'est pas un cookie et la bannière ne peut
+     pas le régler, mais l'IP du visiteur part chez Google (jugé contraire
+     au RGPD, LG München 2022). Remonté comme **avertissement**
+     (`scanner.warnings`, code `google-fonts`), jamais comme service ;
+     affiché par `src/admin/components/ScanWarnings.jsx`.
 3. Les cookies **JavaScript** exécutés dynamiquement et
    `localStorage`/`sessionStorage` ne sont **pas** observables depuis une
    requête HTTP côté serveur : ce n'est donc jamais prétendu (voir
@@ -235,6 +243,13 @@ Le blocage est **réel**, implémenté par `Nook\Frontend\ContentFilter` :
   rabattre sur les domaines génériques : cela désambiguïse les services qui
   partagent un domaine (ex. `googletagmanager.com` utilisé à la fois par
   Google Analytics et Google Tag Manager).
+- Scripts inline : ne sont jamais touchés les scripts non exécutables
+  (`application/ld+json`, templates… — casser le JSON-LD nuirait au SEO),
+  ceux de Nook (`id="nook-*"`), ni un script qui ne fait que **construire
+  une iframe d'embed** (motif `iframePatterns` sans motif `scriptPatterns`) :
+  c'est alors l'iframe elle-même que bloque le garde navigateur (ci-dessous),
+  ce qui préserve le reste du script. Un chargeur inline reconnu par son
+  seul domaine (ex. service personnalisé Hotjar) reste neutralisé.
 - Une `<iframe src="...">` correspondante est remplacée par un placeholder
   (`Nook\Frontend\Placeholder::render()`) conservant l'URL d'origine,
   la largeur/hauteur/titre, et un bouton « Autoriser et afficher ».
@@ -245,12 +260,25 @@ Le blocage est **réel**, implémenté par `Nook\Frontend\ContentFilter` :
 - Le mécanisme fonctionne même si le visiteur a JavaScript désactivé : dans
   ce cas, les scripts/iframes neutralisés restent simplement non exécutés
   (fail-safe = bloqué).
-- Limite assumée (voir PROJECT.md §47) : ce filtre de sortie est un filet de
-  sécurité serveur solide contre l'écrasante majorité des intégrations
-  (thèmes, Elementor, plugins classiques), mais une extension qui injecterait
-  un script de façon totalement dynamique côté client (ex. après un appel
-  AJAX non intercepté) pourrait y échapper — aucun outil ne peut garantir un
-  blocage à 100 % sans exécuter un vrai navigateur.
+- **Blocage dynamique des iframes** (`src/frontend/guard.js`, entrée
+  webpack `frontend/guard`, ~3 Ko) : chargé seul dans le `<head>` avant tout
+  autre script (`Assets::enqueue_guard()`, uniquement si un service est
+  bloqué), avec une config inline minimale (`window.nookGuardConfig` :
+  signatures d'iframes des services bloqués, textes du placeholder). Il
+  intercepte `iframe.src = …` et `setAttribute( 'src', … )` : une URL
+  bloquée est mise de côté (`data-nook-src`) **avant toute requête**, puis
+  l'iframe est remplacée à l'insertion par le même placeholder que côté
+  serveur (MutationObserver ; rattrape aussi les iframes insérées via
+  `innerHTML`, en dernier recours). Le placeholder conserve `allow`, `class`
+  et `style` pour une réactivation fidèle, et reprend la position de
+  l'iframe si le thème la place en absolu (lecteur posé sur une vignette).
+  `blocker.js` lève le blocage via `window.nookGuard.allow()` dès que la
+  catégorie est acceptée. Validé en conditions réelles (lecteur YouTube
+  `youtube-nocookie` chargé au clic, aucune requête avant consentement).
+- Limite assumée (voir PROJECT.md §47) : un **script** injecté
+  dynamiquement côté client (ex. après un appel AJAX) peut encore échapper
+  au filtre serveur — le garde ne couvre que les iframes. Aucun outil ne
+  peut garantir un blocage à 100 % sans exécuter un vrai navigateur.
 
 ### 3.5 Stockage (`includes/Database/`)
 
@@ -688,6 +716,10 @@ quotidien, qui va dans `STATUS.md`).
     centre de préférences — décision documentée section 9 car c'est un
     ajout de dépendance au runtime public, à ne pas reproduire sans
     réflexion équivalente.
+- **2026-10-15** — Premier test réel (site de Mathieu Panciatici) : garde
+  navigateur pour les iframes créées en JavaScript, scripts inline
+  construisant une iframe laissés au garde, avertissement Google Fonts
+  (sections 3.3 et 3.4).
 - **2026-10-15** — Distribution et mises à jour via GitHub (section 15) :
   dépôt public `maxevstudio/nook`, module `Nook\Updater\GitHubUpdater`,
   workflows `.github/workflows/ci.yml` et `release.yml`.

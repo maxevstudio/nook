@@ -96,3 +96,58 @@ nook_test(
 		nook_assert_equals( 20, count( $results['urls'] ), 'le scanner ne doit jamais traiter plus de 20 URLs (Scanner::MAX_URLS)' );
 	}
 );
+
+nook_test(
+	'Scanner::scan() détecte un lecteur YouTube créé en JavaScript (URL d’embed dans un script inline)',
+	function () {
+		$GLOBALS['__nook_test_http_responses']['https://example.test/'] = array(
+			'response' => array( 'code' => 200 ),
+			'body'     => '<html><body><a href="https://www.youtube.com/watch?v=abc">Vidéo</a>'
+				. '<script>link.onclick = function () { var f = document.createElement("iframe"); f.src = "https://www.youtube-nocookie.com/embed/" + id; };</script>'
+				. '</body></html>',
+			'cookies'  => array(),
+		);
+
+		$results  = ( new Scanner() )->scan( array( 'https://example.test/' ) );
+		$services = array();
+		foreach ( $results['services'] as $service ) {
+			$services[ $service['slug'] ] = $service;
+		}
+
+		nook_assert( true === $services['youtube']['detected'], 'YouTube chargé au clic doit être détecté' );
+		nook_assert_equals( 'inline-script', $services['youtube']['provenance'][0]['type'] );
+	}
+);
+
+nook_test(
+	'Scanner::scan() signale Google Fonts sans le compter comme un service',
+	function () {
+		$GLOBALS['__nook_test_http_responses']['https://example.test/'] = array(
+			'response' => array( 'code' => 200 ),
+			'body'     => "<html><head><link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Montserrat:400&#038;display=swap' /></head>"
+				. '<body><p>Un lien vers https://fonts.google.com ne compte pas.</p></body></html>',
+			'cookies'  => array(),
+		);
+
+		$results = ( new Scanner() )->scan( array( 'https://example.test/' ) );
+
+		nook_assert_equals( 1, count( $results['warnings'] ) );
+		nook_assert_equals( 'google-fonts', $results['warnings'][0]['code'] );
+		nook_assert_equals( 'https://fonts.googleapis.com/css?family=Montserrat:400&display=swap', $results['warnings'][0]['urls'][0] );
+	}
+);
+
+nook_test(
+	'Scanner::scan() ne signale rien sans Google Fonts',
+	function () {
+		$GLOBALS['__nook_test_http_responses']['https://example.test/'] = array(
+			'response' => array( 'code' => 200 ),
+			'body'     => '<html><body>Rien</body></html>',
+			'cookies'  => array(),
+		);
+
+		$results = ( new Scanner() )->scan( array( 'https://example.test/' ) );
+
+		nook_assert_equals( array(), $results['warnings'] );
+	}
+);

@@ -150,6 +150,10 @@ class ContentFilter {
 		$attrs   = $this->parse_attributes( $matches['attrs'] );
 		$content = $matches['content'];
 
+		if ( ! $this->is_executable_script( $attrs ) || $this->is_nook_script( $attrs ) ) {
+			return $matches[0];
+		}
+
 		if ( isset( $attrs['src'] ) && '' !== $attrs['src'] ) {
 			$entry = $this->find_matching_entry( $attrs['src'], 'scriptPatterns' );
 
@@ -171,7 +175,19 @@ class ContentFilter {
 			return $matches[0];
 		}
 
-		$entry = $this->find_matching_entry( $content, 'scriptPatterns' );
+		$entry = $this->match_against( $content, 'scriptPatterns' );
+
+		if ( null === $entry ) {
+			// Un script qui ne fait que construire une iframe d'embed (ex.
+			// lecteur YouTube chargé au clic) n'est pas neutralisé en bloc :
+			// c'est l'iframe elle-même que bloque src/frontend/guard.js, ce
+			// qui préserve le reste du script et affiche un placeholder.
+			if ( null !== $this->match_against( $content, 'iframePatterns' ) ) {
+				return $matches[0];
+			}
+
+			$entry = $this->match_against( $content, 'domains' );
+		}
 
 		if ( null === $entry ) {
 			return $matches[0];
@@ -182,6 +198,37 @@ class ContentFilter {
 		$attrs['data-nook-service']  = $entry['slug'];
 
 		return '<script' . $this->build_attributes( $attrs ) . '>' . $content . '</script>';
+	}
+
+	/**
+	 * Indique si une balise `<script>` est exécutée par le navigateur. Les
+	 * blocs de données (`application/ld+json`, templates, `importmap`…) ne
+	 * le sont pas : les neutraliser casserait par exemple les données
+	 * structurées SEO, qui citent souvent des URL YouTube ou Facebook.
+	 *
+	 * @param array<string, string> $attrs Attributs de la balise.
+	 * @return bool
+	 */
+	private function is_executable_script( array $attrs ) {
+		if ( ! isset( $attrs['type'] ) ) {
+			return true;
+		}
+
+		$type = strtolower( trim( $attrs['type'] ) );
+
+		return in_array( $type, array( '', 'text/javascript', 'application/javascript', 'module', 'text/ecmascript', 'application/ecmascript' ), true );
+	}
+
+	/**
+	 * Indique si une balise `<script>` appartient à Nook (handles
+	 * `nook-*`), comme la configuration du garde qui liste justement les
+	 * domaines à bloquer.
+	 *
+	 * @param array<string, string> $attrs Attributs de la balise.
+	 * @return bool
+	 */
+	private function is_nook_script( array $attrs ) {
+		return isset( $attrs['id'] ) && 0 === strpos( $attrs['id'], 'nook-' );
 	}
 
 	/**
