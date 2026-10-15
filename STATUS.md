@@ -6,7 +6,8 @@
 
 ## Current version
 
-`0.1.0-dev` (aucune release publique n'a encore été taguée).
+`0.1.0` — première release publique, taguée `v0.1.0` et publiée sur
+<https://github.com/maxevstudio/nook/releases> (ZIP généré par la CI).
 
 ## Current milestone
 
@@ -142,9 +143,24 @@ Milestone F/G (voir « Next » ci-dessous) avant une release candidate.
   dépôt (`--version=0.9.0`) : ZIP propre généré, structure vérifiée
   (`unzip -l`).
 
+### Distribution GitHub et mises à jour automatiques
+
+- Dépôt public `maxevstudio/nook` (branche `main`), CI GitHub Actions
+  (lint, tests PHP, build) et workflow de release sur tag `v*`.
+- `Nook\Updater\GitHubUpdater` : les sites installés reçoivent les
+  nouvelles versions via l'écran natif « Mises à jour » (voir
+  ARCHITECTURE.md §15, RELEASE.md « Publier une version »).
+- 64 tests PHP (dont 4 pour l'updater).
+
 ## In progress
 
-Rien en cours d'écriture au moment de la rédaction de ce statut.
+**Test en conditions réelles sur le site de Mathieu Panciatici** (copie
+locale MAMP, `localhost:8888/mathieupanciatici`, Elementor + Elementor Pro,
+aucun autre plugin de consentement) : Nook 0.1.0 est copié dans
+`wp-content/plugins/nook` depuis le ZIP de la release ; activation et
+parcours du wizard à faire, puis validation des critères d'acceptation de
+PROJECT.md (voir « Next » point 6). Les correctifs issus de ce test
+passeront par de nouvelles releases.
 
 ## Next
 
