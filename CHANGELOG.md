@@ -7,6 +7,8 @@ le projet suit le [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## 0.1.0 — 15 octobre 2026
+
 ### Added
 - Mises à jour automatiques depuis les releases GitHub publiques
   (`maxevstudio/nook`) via l'écran natif « Mises à jour » de WordPress,

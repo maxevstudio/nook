@@ -3,7 +3,7 @@
  * Plugin Name:       Nook
  * Plugin URI:        https://github.com/maxevstudio/nook
  * Description:       Gestionnaire de consentement aux cookies léger, moderne et WordPress-natif. Installer → analyser → configurer → publier.
- * Version:           0.1.0-dev
+ * Version:           0.1.0
  * Requires at least: 6.6
  * Requires PHP:      7.4
  * Author:            Maxev
@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // --- Constantes du plugin -------------------------------------------------
 
-define( 'NOOK_VERSION', '0.1.0-dev' );
+define( 'NOOK_VERSION', '0.1.0' );
 define( 'NOOK_DB_VERSION', 1 );
 define( 'NOOK_PLUGIN_FILE', __FILE__ );
 define( 'NOOK_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
