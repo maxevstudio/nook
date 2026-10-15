@@ -1,0 +1,41 @@
+name: Release
+
+# Construit le ZIP de production et l'attache à la release GitHub dès qu'un
+# tag de version (ex. v1.0.0) est poussé. Le module de mise à jour du plugin
+# (includes/Updater/GitHubUpdater.php) lit ce ZIP depuis la release.
+#
+# La version doit déjà être appliquée et commitée (npm run release --
+# --version=X.Y.Z, voir RELEASE.md) : ce workflow ne fait qu'empaqueter
+# (--package-only) et refuse un tag qui ne correspond pas à package.json.
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: PHP tests
+        run: npm run test:php
+
+      - name: Build and package plugin ZIP
+        run: npm run release -- --package-only
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/nook-*.zip
+          generate_release_notes: true

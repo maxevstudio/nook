@@ -12,6 +12,7 @@
     "lint:css": "wp-scripts lint-style \"src/**/*.{css,scss}\"",
     "format": "wp-scripts format src",
     "test": "wp-scripts test-unit-js",
+    "test:php": "php tests/php/run.php",
     "packages-update": "wp-scripts packages-update",
     "release": "node bin/release.mjs"
   },

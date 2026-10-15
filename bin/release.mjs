@@ -5,6 +5,8 @@
  * Usage :
  *   npm run release
  *   npm run release -- --version=1.2.0
+ *   npm run release -- --package-only   (CI : empaquette la version déjà
+ *                                        commitée, sans toucher aux fichiers)
  *
  * Voir RELEASE.md pour la description complète du processus. Ce script
  * s'arrête (code de sortie non nul) dès qu'une étape critique échoue : aucune
@@ -27,6 +29,7 @@ const args = process.argv.slice( 2 );
 const versionArg = args
 	.map( ( arg ) => arg.match( /^--version=(.+)$/ ) )
 	.find( Boolean );
+const packageOnly = args.includes( '--package-only' );
 
 function log( step, message ) {
 	console.log( `\n\u001b[1m[${ step }]\u001b[0m ${ message }` );
@@ -75,6 +78,14 @@ function lintAndTest() {
 			run( 'npm run lint:js' );
 		} catch ( error ) {
 			fail( 'Le lint JavaScript a échoué.' );
+		}
+	}
+
+	if ( pkg.scripts && pkg.scripts[ 'test:php' ] ) {
+		try {
+			run( 'npm run test:php' );
+		} catch ( error ) {
+			fail( 'Les tests PHP ont échoué.' );
 		}
 	}
 
@@ -288,15 +299,39 @@ function createZip( version ) {
 	return zipPath;
 }
 
+/**
+ * En mode --package-only (CI), vérifie que le tag Git poussé correspond à la
+ * version déjà inscrite dans les fichiers : un ZIP ne doit jamais annoncer
+ * une autre version que celle du tag de la release GitHub.
+ */
+function verifyTagMatchesVersion( version ) {
+	const tag = process.env.GITHUB_REF_TYPE === 'tag' ? process.env.GITHUB_REF_NAME : '';
+
+	if ( tag && tag.replace( /^v/, '' ) !== version ) {
+		fail( `Le tag ${ tag } ne correspond pas à la version ${ version } de package.json.` );
+	}
+
+	const pluginContents = readFileSync( PLUGIN_FILE, 'utf8' );
+	if ( ! pluginContents.includes( `define( 'NOOK_VERSION', '${ version }' );` ) ) {
+		fail( `NOOK_VERSION dans nook.php ne correspond pas à ${ version }.` );
+	}
+}
+
 async function main() {
 	const pkg = readJSON( PKG_PATH );
-	const version = resolveVersion( pkg.version );
+	const version = packageOnly ? pkg.version : resolveVersion( pkg.version );
 
 	verifyProject();
+	if ( packageOnly ) {
+		verifyTagMatchesVersion( version );
+	}
 	lintAndTest();
 	buildProduction();
-	applyVersion( version );
-	const date = updateChangelog( version );
+	let date = null;
+	if ( ! packageOnly ) {
+		applyVersion( version );
+		date = updateChangelog( version );
+	}
 	prepareDistribution();
 	verifyDistribution();
 	writeBuildManifest( version, date );

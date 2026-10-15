@@ -20,6 +20,7 @@ use Nook\REST\PublicConfigController;
 use Nook\REST\ScanController;
 use Nook\REST\ServicesController;
 use Nook\REST\SettingsController;
+use Nook\Updater\GitHubUpdater;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -72,5 +73,6 @@ final class Plugin {
 		( new Assets() )->register();
 		( new ContentFilter() )->register();
 		( new Shortcodes() )->register();
+		( new GitHubUpdater() )->register();
 	}
 }

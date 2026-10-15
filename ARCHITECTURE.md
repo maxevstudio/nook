@@ -45,8 +45,9 @@ nook/
 │   ├── Services/              # ServiceDefinition, ServiceRegistry, ServiceState,
 │   │                          # un fichier par service (GoogleAnalytics.php, ...)
 │   ├── Database/              # Settings, Migrations, ScanResults, CookieDatabase
-│   └── Frontend/              # Assets, ContentFilter, Blocklist, Placeholder,
-│                              # Shortcodes (blocage réel + rendu public)
+│   ├── Frontend/              # Assets, ContentFilter, Blocklist, Placeholder,
+│   │                          # Shortcodes (blocage réel + rendu public)
+│   └── Updater/               # GitHubUpdater (mises à jour via releases GitHub, §15)
 │
 ├── src/                       # Sources JS/JSX (non distribuées, compilées en build/)
 │   ├── admin/                 # Application React de l'administration
@@ -687,3 +688,31 @@ quotidien, qui va dans `STATUS.md`).
     centre de préférences — décision documentée section 9 car c'est un
     ajout de dépendance au runtime public, à ne pas reproduire sans
     réflexion équivalente.
+- **2026-10-15** — Distribution et mises à jour via GitHub (section 15) :
+  dépôt public `maxevstudio/nook`, module `Nook\Updater\GitHubUpdater`,
+  workflows `.github/workflows/ci.yml` et `release.yml`.
+
+## 15. Mises à jour automatiques (`includes/Updater/`)
+
+Nook n'est pas publié sur WordPress.org. Les sites clients se mettent à jour
+depuis les **releases du dépôt public GitHub `maxevstudio/nook`**, via l'écran
+natif « Mises à jour » de WordPress (même mécanisme que SimpleTrad).
+
+- `Nook\Updater\GitHubUpdater` interroge
+  `https://api.github.com/repos/maxevstudio/nook/releases/latest` (API
+  publique, sans jeton), au plus une fois toutes les 6 h (transient
+  `nook_github_release`, échecs inclus), et injecte la mise à jour dans
+  `site_transient_update_plugins` si la version publiée est supérieure à
+  `NOOK_VERSION`.
+- Seul un **ZIP joint à la release** est utilisé (dossier racine `nook/`) ;
+  le zipball automatique de GitHub n'est jamais proposé car son dossier
+  racine ne correspond pas au slug du plugin.
+- **Ce n'est pas de la télémétrie** (AGENTS.md règle 9) : la requête ne
+  transmet aucune donnée du site (pas d'URL, pas de configuration) — seul
+  l'en-tête `User-Agent: Nook-Updater` est envoyé.
+- Désactivable : `add_filter( 'nook_github_updater_enabled', '__return_false' );`.
+  Dépôt modifiable : filtre `nook_github_repo` (fork, futur dépôt privé de
+  distribution Maxev).
+- Le ZIP est produit par la CI (`.github/workflows/release.yml`) à chaque
+  tag `v*`, via `npm run release -- --package-only` — voir
+  [RELEASE.md](RELEASE.md).

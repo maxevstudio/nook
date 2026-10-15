@@ -12,11 +12,32 @@ Nook suit le [Semantic Versioning](https://semver.org/) : `MAJOR.MINOR.PATCH`.
 Pendant la phase de fondations, la version de travail est `0.1.0-dev` (voir
 [STATUS.md](STATUS.md)). Aucune release publique n'est encore taguée.
 
+## Publier une version (procédure complète)
+
+Les sites clients se mettent à jour automatiquement depuis les releases
+GitHub (voir ARCHITECTURE.md §15). Pour publier `X.Y.Z` :
+
+```bash
+npm run release -- --version=X.Y.Z   # applique la version + CHANGELOG, ZIP local
+git add -A && git commit -m "release: X.Y.Z"
+git tag vX.Y.Z
+git push origin main --tags
+```
+
+Le push du tag déclenche `.github/workflows/release.yml`, qui relance les
+tests, reconstruit le ZIP avec `npm run release -- --package-only` (aucun
+fichier modifié, refus si le tag ne correspond pas à `package.json`/
+`NOOK_VERSION`) et l'attache à la release GitHub. Les sites voient la mise à
+jour sous 6 h maximum (cache de l'updater), ou immédiatement via
+« Tableau de bord → Mises à jour → Vérifier à nouveau » après expiration du
+cache.
+
 ## Commandes
 
 ```bash
 npm run release
 npm run release -- --version=1.2.0
+npm run release -- --package-only   # CI : empaquette la version commitée
 ```
 
 Sans `--version`, le script propose un incrément `patch` par défaut à partir
@@ -28,7 +49,7 @@ de la version actuelle de `package.json`/`nook.php`.
    fichiers suivis (avertissement si `git` indisponible/absent, la release
    continue quand même mais le signale).
 2. **Lint / tests** — `npm run lint:js`, `npm run lint:css` si configurés,
-   `npm test` si des tests existent. Un échec bloquant arrête la release.
+   `npm run test:php`, `npm test` si des tests JS existent. Un échec bloquant arrête la release.
 3. **Build de production** — `npm run build` (via `wp-scripts build`),
    génère `build/admin/` et `build/frontend/`.
 4. **Appliquer la version** — calcule la version finale (argument

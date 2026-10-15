@@ -17,6 +17,7 @@ use Nook\REST\PublicConfigController;
 use Nook\REST\ScanController;
 use Nook\REST\ServicesController;
 use Nook\REST\SettingsController;
+use Nook\Updater\GitHubUpdater;
 
 nook_test(
 	'Tous les modules accrochés par Plugin::init() s’instancient et s’enregistrent sans erreur',
@@ -30,6 +31,7 @@ nook_test(
 		( new Assets() )->register();
 		( new ContentFilter() )->register();
 		( new Shortcodes() )->register();
+		( new GitHubUpdater() )->register();
 
 		nook_assert( true, 'aucune exception ne doit être levée pendant le bootstrap' );
 	}

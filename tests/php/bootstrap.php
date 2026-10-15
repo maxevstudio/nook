@@ -21,6 +21,18 @@ if ( ! defined( 'NOOK_PLUGIN_DIR' ) ) {
 	define( 'NOOK_PLUGIN_DIR', dirname( __DIR__, 2 ) . '/' );
 }
 
+if ( ! defined( 'NOOK_VERSION' ) ) {
+	define( 'NOOK_VERSION', '0.1.0' );
+}
+
+if ( ! defined( 'NOOK_PLUGIN_BASENAME' ) ) {
+	define( 'NOOK_PLUGIN_BASENAME', 'nook/nook.php' );
+}
+
+if ( ! defined( 'HOUR_IN_SECONDS' ) ) {
+	define( 'HOUR_IN_SECONDS', 3600 );
+}
+
 $GLOBALS['__nook_test_options']            = array();
 $GLOBALS['__nook_test_filters']            = array();
 $GLOBALS['__nook_test_current_user_can']   = true;
@@ -171,6 +183,12 @@ if ( ! function_exists( 'add_action' ) ) {
 }
 
 // --- Sanitation / validation -----------------------------------------------
+
+if ( ! function_exists( 'wp_kses_post' ) ) {
+	function wp_kses_post( $data ) {
+		return (string) $data;
+	}
+}
 
 if ( ! function_exists( 'sanitize_text_field' ) ) {
 	function sanitize_text_field( $str ) {

@@ -1,0 +1,32 @@
+name: CI
+
+# Vérifie chaque push et pull request : lint JS/CSS, tests PHP et build.
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: |
+          npm run lint:js
+          npm run lint:css
+
+      - name: PHP tests
+        run: npm run test:php
+
+      - name: Build production assets
+        run: npm run build

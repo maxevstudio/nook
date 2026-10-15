@@ -8,6 +8,11 @@ le projet suit le [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- Mises à jour automatiques depuis les releases GitHub publiques
+  (`maxevstudio/nook`) via l'écran natif « Mises à jour » de WordPress,
+  désactivables par filtre (`nook_github_updater_enabled`).
+- Workflows GitHub Actions : CI (lint, tests PHP, build) et publication
+  automatique du ZIP à chaque tag `v*`.
 - Documentation permanente du projet : `AGENTS.md`, `PROJECT.md`,
   `ARCHITECTURE.md`, `STATUS.md`, `RELEASE.md`, `README.md`.
 - Squelette du plugin WordPress (`nook.php`, `uninstall.php`, arborescence
