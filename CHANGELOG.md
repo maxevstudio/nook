@@ -7,6 +7,8 @@ le projet suit le [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## 0.1.1 — 15 octobre 2026
+
 ### Added
 - Blocage des iframes créées en JavaScript (ex. lecteur YouTube chargé au
   clic) : petit garde chargé dans le `<head>` qui met l'URL de côté avant

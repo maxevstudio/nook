@@ -6,8 +6,8 @@
 
 ## Current version
 
-`0.1.0` — première release publique, taguée `v0.1.0` et publiée sur
-<https://github.com/maxevstudio/nook/releases> (ZIP généré par la CI).
+`0.1.1` — publiée sur <https://github.com/maxevstudio/nook/releases>
+(ZIP généré par la CI, distribué aux sites via l'updater GitHub).
 
 ## Current milestone
 
@@ -178,8 +178,8 @@ couleur profonde vs plus terne), après avoir regardé ce que font les autres
 CMP. Ceci s'écarte d'AGENTS.md règle 12 et des recommandations CNIL
 (même niveau, même forme) : à trancher et, le cas échéant, à documenter.
 
-**À publier** : ces changements sont commités en local mais **pas encore
-poussés** sur GitHub — l'auteur teste d'abord de son côté.
+Tous les correctifs et la nouvelle présentation issus de ce test sont
+publiés en **0.1.1**, après validation par l'auteur sur le site de Mathieu.
 
 ## Next
 
