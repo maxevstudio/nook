@@ -29,8 +29,10 @@ tests, reconstruit le ZIP avec `npm run release -- --package-only` (aucun
 fichier modifié, refus si le tag ne correspond pas à `package.json`/
 `NOOK_VERSION`) et l'attache à la release GitHub. Les sites voient la mise à
 jour sous 6 h maximum (cache de l'updater), ou immédiatement via
-« Tableau de bord → Mises à jour → Vérifier à nouveau » après expiration du
-cache.
+« Tableau de bord → Mises à jour → Vérifier à nouveau », qui vide aussi le
+cache de Nook (à partir de la 0.1.2). Chaîne complète validée en 0.1.1 sur
+le site de Mathieu Panciatici (détection, installation du ZIP, réglages
+conservés).
 
 ## Commandes
 

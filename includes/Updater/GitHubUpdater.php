@@ -41,6 +41,21 @@ class GitHubUpdater {
 		add_filter( 'site_transient_update_plugins', array( $this, 'inject_update' ) );
 		add_filter( 'plugins_api', array( $this, 'plugin_information' ), 20, 3 );
 		add_action( 'upgrader_process_complete', array( $this, 'purge_cache' ), 10, 0 );
+		add_action( 'load-update-core.php', array( $this, 'purge_cache_on_force_check' ) );
+	}
+
+	/**
+	 * « Vérifier à nouveau » (Tableau de bord → Mises à jour) vide aussi le
+	 * cache de Nook : une release tout juste publiée apparaît alors
+	 * immédiatement, sans attendre l'expiration des 6 h.
+	 *
+	 * @return void
+	 */
+	public function purge_cache_on_force_check() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- même paramètre que le cœur de WordPress, lecture seule.
+		if ( isset( $_GET['force-check'] ) && current_user_can( 'update_plugins' ) ) {
+			$this->purge_cache();
+		}
 	}
 
 	/**

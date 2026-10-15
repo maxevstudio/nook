@@ -103,3 +103,27 @@ nook_test(
 		nook_assert( null === $updater->get_latest_release(), 'le cache d’échec doit être respecté' );
 	}
 );
+
+nook_test(
+	'GitHubUpdater vide son cache lors d’un « Vérifier à nouveau » (force-check)',
+	function () {
+		set_transient( GitHubUpdater::CACHE_KEY, array( 'version' => '0.0.1' ) );
+		$_GET['force-check'] = '1';
+
+		( new GitHubUpdater() )->purge_cache_on_force_check();
+		unset( $_GET['force-check'] );
+
+		nook_assert( false === get_transient( GitHubUpdater::CACHE_KEY ), 'le cache doit être vidé' );
+	}
+);
+
+nook_test(
+	'GitHubUpdater garde son cache sans force-check',
+	function () {
+		set_transient( GitHubUpdater::CACHE_KEY, array( 'version' => '0.0.1' ) );
+
+		( new GitHubUpdater() )->purge_cache_on_force_check();
+
+		nook_assert( false !== get_transient( GitHubUpdater::CACHE_KEY ), 'le cache doit être conservé' );
+	}
+);

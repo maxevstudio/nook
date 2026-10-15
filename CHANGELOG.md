@@ -7,6 +7,11 @@ le projet suit le [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+- « Vérifier à nouveau » (Tableau de bord → Mises à jour) vide aussi le
+  cache de l'updater Nook : une release tout juste publiée apparaît
+  immédiatement au lieu d'attendre jusqu'à 6 h.
+
 ## 0.1.1 — 15 octobre 2026
 
 ### Added
